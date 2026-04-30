@@ -1,8 +1,6 @@
 ####################################
-# KAOS Chinese/original passthrough table for Phrozen Arco AMS Klipper extension
-# V0.9
-# Chinese/original mode intentionally uses an empty table.
-# When LANG=zh, kaos_translate_message returns the original vendor text unchanged.
+# KAOS language package marker
+#
+# This file intentionally stays empty. It allows Python to import language
+# tables from phrozen_dev.lang.
 ####################################
-
-KAOS_TRANSLATIONS_ZH = {}
