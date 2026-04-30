@@ -1,4 +1,4 @@
-# This is A dev PROJECT
+# This is a DEV project
 # These instructions are incorrect
 
 # Phrozen Arco – Klipper Add-On System (KAOS)
