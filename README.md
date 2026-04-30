@@ -1,3 +1,6 @@
+# This is A dev PROJECT
+# These instructions are incorrect
+
 # Phrozen Arco – Klipper Add-On System (KAOS)
 ## Purpose
 
