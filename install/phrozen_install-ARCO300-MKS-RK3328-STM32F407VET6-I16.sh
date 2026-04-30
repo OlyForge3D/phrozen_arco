@@ -17,11 +17,10 @@ backup_file() {
 
 # Backup existing files without removing the working copy first.
 backup_file "$TARGET_DIR/dev.py"
-backup_file "$TARGET_DIR/kaos_logging.py"
-backup_file "$TARGET_DIR/kaos_translations.py"
-
 backup_file "$CONFIG_DIR/printer.cfg"
 backup_file "$CONFIG_DIR/printer_gcode_macro.cfg"
+backup_file "$CONFIG_DIR/kaos.cfg"
+
 
 # Copy only patched Python files.
 cp -f /tmp/phrozen_dev/dev.py "$TARGET_DIR/dev.py" || exit 1
@@ -35,24 +34,24 @@ mkdir -p "$TARGET_DIR/lang" || exit 1
 cp -a /tmp/phrozen_dev/lang/. "$TARGET_DIR/lang/" || exit 1
 
 # copy cfg files
-cp -f /tmp/phrozen_dev/kaos.cfg "$CONFIG_DIR/" || exit 1
-cp -f /tmp/phrozen_dev/kaos_menu.cfg "$CONFIG_DIR/" || exit 1
+mkdir -p "$CONFIG_DIR/kaos" || exit 1
+cp -f /tmp/phrozen_dev/kaos.cfg "$CONFIG_DIR/kaos.cfg" || exit 1
+cp -f /tmp/phrozen_dev/kaos/*.cfg "$CONFIG_DIR/kaos/" || exit 1
+
+
 cp -f /tmp/phrozen_dev/printer.cfg "$CONFIG_DIR/" || exit 1
 cp -f /tmp/phrozen_dev/printer_gcode_macro.cfg "$CONFIG_DIR/" || exit 1
 
 chmod 644 "$TARGET_DIR/dev.py" || exit 1
-chmod 644 "$TARGET_DIR/cmds.py" || exit 1
-chmod 644 "$TARGET_DIR/kaos_logging.py" || exit 1
-chmod 644 "$TARGET_DIR/kaos_translations.py" || exit 1
+
+chmod 755 "$CONFIG_DIR/kaos" || exit 1
+chmod 644 "$CONFIG_DIR/kaos/"*.cfg || exit 1
 
 chmod 755 "$TARGET_DIR/lang" || exit 1
 chmod 644 "$TARGET_DIR/lang/"*.py || exit 1
 chmod 644 "$CONFIG_DIR/kaos.cfg" || exit 1
-chmod 644 "$CONFIG_DIR/kaos_menu.cfg" || exit 1
 chmod 644 "$CONFIG_DIR/printer.cfg" || exit 1
 chmod 644 "$CONFIG_DIR/printer_gcode_macro.cfg" || exit 1
-
-
 
 echo "KAOS Created"
 exit 0
