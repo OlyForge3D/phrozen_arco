@@ -1,3 +1,498 @@
+# Phrozen Arco – KAOS Klipper Add-On System
+
+## Project Status
+
+This is a development project for the Phrozen Arco running Klipper.
+
+KAOS modifies stock Phrozen Arco behavior. It is intended for advanced users who are comfortable with SSH, Klipper configuration files, firmware updates, and recovery from configuration errors.
+
+Use at your own risk. Keep backups of your working configuration before installing.
+
+---
+
+## What is KAOS?
+
+KAOS is a modular Klipper add-on system for the Phrozen Arco.
+
+It provides:
+
+- safer movement and homing behavior
+- centralized user configuration
+- split feature-based config files
+- AMS / Chroma-related macro improvements
+- adaptive mesh and leveling helpers
+- lighting, fan, beeper, and stepper helpers
+- optional Python-assisted logging and translation support
+- USB installer support for easier deployment
+
+KAOS is no longer a single-file add-on. The current architecture uses a top-level config file plus modular feature files.
+
+---
+
+## Current Architecture
+
+KAOS is organized into three main areas:
+
+```text
+/home/mks/printer_data/config/
+├── printer.cfg
+├── printer_gcode_macro.cfg
+├── kaos.cfg
+└── kaos/
+    ├── kaos_beeper.cfg
+    ├── kaos_debug.cfg
+    ├── kaos_dynamic_speed.cfg
+    ├── kaos_fans.cfg
+    ├── kaos_lights.cfg
+    ├── kaos_logging.cfg
+    ├── kaos_mesh.cfg
+    ├── kaos_safety.cfg
+    ├── kaos_screws_tilt.cfg
+    ├── kaos_steppers.cfg
+    ├── kaos_z_tilt.cfg
+    └── magic_ams_by_chris.cfg
+```
+
+Python support files are installed here:
+
+```text
+/home/mks/klipper/klippy/extras/phrozen_dev/
+├── dev.py
+├── kaos_logging.py
+├── kaos_translations.py
+└── lang/
+    ├── kaos_translations_en.py
+    ├── kaos_translations_fr.py
+    └── kaos_translations_zh.py
+```
+
+The main entry point from `printer.cfg` is:
+
+```ini
+[include kaos.cfg]
+```
+
+`kaos.cfg` then loads the split feature files from the `kaos/` directory.
+
+---
+
+## Key Design Rules
+
+### 1. `kaos.cfg` is the top-level KAOS config
+
+`kaos.cfg` should contain the main user-facing configuration and include structure.
+
+### 2. Feature logic belongs in split files
+
+Feature-specific macros belong in the `/config/kaos/` folder.
+
+Examples:
+
+- fan logic → `kaos_fans.cfg`
+- Z tilt logic → `kaos_z_tilt.cfg`
+- safety wrappers → `kaos_safety.cfg`
+- adaptive mesh → `kaos_mesh.cfg`
+- logging wrappers → `kaos_logging.cfg`
+
+### 3. `_USER_CONFIG` is the central policy/config macro
+
+User-adjustable KAOS settings should be exposed through `_USER_CONFIG` where practical.
+
+### 4. Internal helper macros use underscore names
+
+Internal helpers should generally be named with a leading underscore, for example:
+
+```text
+_KAOS_LOG
+_KAOS_STARTUP_LOGGING
+_KAOS_SAFETY_MODE_REQUIRE_PHYSICAL_TRUSTED_XYZ
+```
+
+This keeps the UI macro list cleaner.
+
+### 5. Public compatibility wrappers may exist temporarily
+
+Some public names may remain as compatibility wrappers during transition, such as:
+
+```text
+KAOS_LOG
+```
+
+But internal KAOS config files should prefer:
+
+```text
+_KAOS_LOG
+```
+
+---
+
+## Installation Overview
+
+KAOS is installed using a Phrozen-style USB update package.
+
+
+---
+
+## Installer Verification
+
+After installing, check that the installer ran:
+
+```bash
+cat /home/mks/printer_data/config/kaos_install_ran.txt
+```
+
+
+Confirm the kaos folder exists:
+
+```bash
+ls -la /home/mks/printer_data/config/kaos/
+```
+
+Confirm language files copied:
+
+```bash
+ls -la /home/mks/klipper/klippy/extras/phrozen_dev/lang/
+```
+
+Confirm Python support files copied:
+
+```bash
+ls -la /home/mks/klipper/klippy/extras/phrozen_dev/kaos_logging.py
+ls -la /home/mks/klipper/klippy/extras/phrozen_dev/kaos_translations.py
+```
+
+---
+
+## Important Restart Note
+
+After installing Python files, do a full machine restart.
+
+Restarting Klipper from the UI may not fully reload updated Python modules.
+
+Recommended:
+
+```bash
+sudo reboot
+```
+
+or power-cycle the printer.
+
+---
+
+## Logging System
+
+KAOS uses two layers of logging.
+
+### Config-level logging
+
+Config macros should use:
+
+```gcode
+_KAOS_LOG LEVEL=2 CATEGORY=TEST MSG="Message here"
+```
+
+Level mapping:
+
+```text
+0 = ERROR
+1 = WARN
+2 = INFO
+3 = DEBUG
+```
+
+### Compatibility logging
+
+`KAOS_LOG` may exist as a compatibility wrapper for older calls, but new KAOS config files should use `_KAOS_LOG`.
+
+To search for outdated public calls:
+
+```bash
+grep -R -n "^[[:space:]]*KAOS_LOG[[:space:]]" /home/mks/printer_data/config
+```
+
+Harmless console prefixes like this do not need changing:
+
+```gcode
+RESPOND PREFIX="KAOS_LOG" MSG="..."
+```
+
+---
+
+## Translation Support
+
+KAOS includes Python translation support using:
+
+```text
+kaos_translations.py
+lang/
+```
+
+Language files live in:
+
+```text
+/home/mks/klipper/klippy/extras/phrozen_dev/lang/
+```
+
+Missing translations should fall back safely rather than breaking printer behavior.
+
+Do not translate or suppress vendor messages that are used as functional control signals.
+
+Some Phrozen / Arco console messages appear to be read by other parts of the system, including HMI, AMS, and lighting behavior.
+
+---
+
+## Major Feature Areas
+
+### Safety and Trusted Homing
+
+KAOS adds a trusted-home framework because the Arco may report axes as homed after `SET_KINEMATIC_POSITION`, even when the printer has not physically homed.
+
+Core concepts:
+
+- physical trusted XY
+- physical trusted XYZ
+- recovery authorization
+- internal motion bypass for controlled vendor routines
+
+Relevant files:
+
+```text
+kaos_safety.cfg
+magic_ams_by_chris.cfg
+```
+
+---
+
+### Homing and Movement Protection
+
+KAOS wraps or guards movement-related behavior to reduce unsafe motion after startup, failed recovery, or false homed-state reporting.
+
+Important macros may include:
+
+```text
+PG28
+G28 wrapper
+_REQUIRE_TRUSTED_XY
+_REQUIRE_TRUSTED_XYZ
+```
+
+Exact macro names may vary by development version.
+
+---
+
+### AMS / Chroma / Purge Behavior
+
+KAOS includes AMS and purge-related macro improvements, including safe service movement and purge/wipe handling.
+
+Relevant routines may include:
+
+```text
+PG101
+PRZ_WIPEMOUTH
+PRZ_WAITINGAREA
+PRZ_CUT_WAITINGAREA
+PRZ_PAUSE_WAITINGAREA
+_SAFE_SERVICE_TRANSIT
+ORCA_PURGE
+```
+
+These routines should be treated carefully because some vendor messages and P-codes are functional, not merely cosmetic logs.
+
+---
+
+### Bed Mesh
+
+KAOS includes an adaptive bed mesh wrapper:
+
+```text
+BED_MESH_CALIBRATE_CUSTOM
+```
+
+It can adjust mesh density based on print size and requires trusted physical homing before probing.
+
+Relevant file:
+
+```text
+kaos_mesh.cfg
+```
+
+---
+
+### Z Tilt
+
+KAOS includes Z tilt helpers such as:
+
+```text
+Z_TILT_ONCE
+Z_TILT_CLEAR
+Z_TILT_ADJUST wrapper
+```
+
+Relevant file:
+
+```text
+kaos_z_tilt.cfg
+```
+
+---
+
+### Screws Tilt
+
+KAOS includes guided bed screw adjustment wrappers.
+
+Relevant file:
+
+```text
+kaos_screws_tilt.cfg
+```
+
+---
+
+### Fans
+
+KAOS can manage board fan behavior using MCU and CPU temperature logic.
+
+Relevant file:
+
+```text
+kaos_fans.cfg
+```
+
+---
+
+### Lights
+
+KAOS includes startup and manual light control helpers.
+
+Relevant file:
+
+```text
+kaos_lights.cfg
+```
+
+---
+
+### Beeper
+
+KAOS includes optional beep/startup notification support.
+
+Relevant file:
+
+```text
+kaos_beeper.cfg
+```
+
+---
+
+### Dynamic Speed
+
+KAOS includes optional dynamic speed logic based on Z height.
+
+Relevant file:
+
+```text
+kaos_dynamic_speed.cfg
+```
+
+---
+
+### Stepper Idle / Hold Current
+
+KAOS includes optional stepper hold-current helpers.
+
+Relevant file:
+
+```text
+kaos_steppers.cfg
+```
+
+---
+
+## Common Checks
+
+### Check for old `KAOS_LOG` calls
+
+```bash
+grep -R -n "^[[:space:]]*KAOS_LOG[[:space:]]" /home/mks/printer_data/config
+```
+
+### Check for KAOS startup messages
+
+```bash
+grep -n "KAOS\|ADDON_LOG\|kaos_logging\|kaos_translations" /home/mks/printer_data/logs/klippy.log | tail -100
+```
+
+### Check for Klipper errors
+
+```bash
+grep -i -n "error\|failed\|traceback\|unknown command\|unable\|not found" /home/mks/printer_data/logs/klippy.log | tail -100
+```
+
+### Check installed split files
+
+```bash
+find /home/mks/printer_data/config/kaos -maxdepth 1 -type f -name "*.cfg" -ls
+```
+
+### Check installed language files
+
+```bash
+find /home/mks/klipper/klippy/extras/phrozen_dev/lang -maxdepth 1 -type f -name "*.py" -ls
+```
+
+---
+
+## Development Notes
+
+This project is actively changing.
+
+Known areas of active development:
+
+- installer reliability
+- split config layout
+- logging architecture
+- translation files
+- AMS / Chroma command behavior
+- purge-into-infill and post-purge priming behavior
+- trusted-home safety framework
+- minimizing changes to stock Phrozen Python files
+
+When possible, KAOS should prefer add-on files and lightweight hooks over large vendor-file rewrites.
+
+---
+
+## Disclaimer
+
+This project modifies stock Phrozen Arco Klipper behavior.
+
+These files are tested only on specific machines and firmware versions. Your printer, firmware, hardware revision, slicer setup, and AMS/Chroma behavior may differ.
+
+Use at your own risk.
+
+Always keep a known-good backup of:
+
+```text
+printer.cfg
+printer_gcode_macro.cfg
+kaos.cfg
+kaos/
+dev.py
+cmds.py
+```
+
+No warranty is provided.
+
+
+
+
+
+
+
+OLD 
+
+
+
+
 # This is a DEV project
 # These instructions are incorrect
 
