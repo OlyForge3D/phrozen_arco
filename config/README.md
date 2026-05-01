@@ -127,7 +127,8 @@ PG28 ; home all axes
 Z_TILT_ONCE ; run tramming once per session
 PRZ_WIPEMOUTH ; wipe nozzle
 BED_MESH_CLEAR ; clear any active mesh profile first
-BED_MESH_CALIBRATE mesh_min={adaptive_bed_mesh_min[0]},{adaptive_bed_mesh_min[1]} mesh_max={adaptive_bed_mesh_max[0]},{adaptive_bed_mesh_max[1]} ALGORITHM=[bed_mesh_algo] PROBE_COUNT={bed_mesh_probe_count[0]},{bed_mesh_probe_count[1]} ADAPTIVE=0 ADAPTIVE_MARGIN=0
+
+BED_MESH_CALIBRATE_CUSTOM MESH_MIN_X={adaptive_bed_mesh_min[0]} MESH_MIN_Y={adaptive_bed_mesh_min[1]} MESH_MAX_X={adaptive_bed_mesh_max[0]} MESH_MAX_Y={adaptive_bed_mesh_max[1]}
 
 TP_OUT ; disable PG28/G30/G31 to prevent mid-print homing
 PRZ_WAITINGAREA ; move to waiting area
