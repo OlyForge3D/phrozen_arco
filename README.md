@@ -33,52 +33,52 @@ KAOS is no longer a single-file add-on. The current architecture uses a top-leve
 - Safer movement protection 
 - Trusted homing checks/ tracking & false-homed-state protection 
 - Safer recovery handling (WIP)
--Startup safety reset(WIP)
--Protected service-position moves 
--Safer probing requirements 
--Improved PG28 homing 
--Safer startup behavior 
+- Startup safety reset(WIP)
+- Protected service-position moves 
+- Safer probing requirements 
+- Improved PG28 homing 
+- Safer startup behavior 
 
 ## Logging & troubleshooting
--Cleaner console logging 
--Adjustable log level 
--Log categories 
--Debug mode support 
--KAOS state/debug helpers 
+- Cleaner console logging 
+- Adjustable log level 
+- Log categories 
+- Debug mode support 
+- KAOS state/debug helpers 
 
 
 ## Multi-language Console/Log Message support
--Multi-language message support 
--Selectable log/message language (en, fr, cz) more on request
--Safe missing-translation fallback 
--Vendor-control message protection 
+- Multi-language message support 
+- Selectable log/message language (en, fr, cz) more on request
+- Safe missing-translation fallback 
+- Vendor-control message protection 
 
 
 ## AMS / Chroma / multi-material
--Reduced purge waste tuning 
--Safer AMS service moves 
--Safer cutter/chute, waiting-area, pause-area movement 
--Post-purge priming control 
--Improved end-of-print cut/retract handling 
+- Reduced purge waste tuning 
+- Safer AMS service moves 
+- Safer cutter/chute, waiting-area, pause-area movement 
+- Post-purge priming control 
+- Improved end-of-print cut/retract handling 
 
 
 ## Bed leveling & first-layer tools
--Fixed G30
--Adaptive bed mesh 
--Z Tilt 
+- Fixed G30
+- Adaptive bed mesh 
+- Z Tilt 
     - Z-tilt once only runs on first print of session
--Screws Tilt helper 
+- Screws Tilt helper 
 
 
 ## Cooling & electronics protection
--Board fan control 
--CPU temperature fan override 
--MCU temperature fan control 
--Tunable board fan target 
+- Board fan control 
+- CPU temperature fan override 
+- MCU temperature fan control 
+- Tunable board fan target 
 
 
 ## Motion tuning & print stability
--Dynamic Speed by Height macro
+- Dynamic Speed by Height macro
     - Tall-thin print stability tuning 
     - Dynamic speed by Z height 
     - Dynamic speed enable/disable 
@@ -88,26 +88,26 @@ KAOS is no longer a single-file add-on. The current architecture uses a top-leve
 
 
 ## Lights, sounds & convenience
--LED light controls 
--Lights on at startup 
--Delayed lights off (WIP)
--Startup beep option
--KAOS menu helpers 
+- LED light controls 
+- Lights on at startup 
+- Delayed lights off (WIP)
+- Startup beep option
+- KAOS menu helpers 
 
 
 ## Configuration & maintenance
--Central user settings 
--Split feature files 
--Easier troubleshooting by feature 
--Cleaner macro list 
--Compatibility wrappers for upgrades 
--Easier feature updates 
+- Central user settings 
+- Split feature files 
+- Easier troubleshooting by feature 
+- Cleaner macro list 
+- Compatibility wrappers for upgrades 
+- Easier feature updates 
 
 ## Installation & updates
--USB update installer 
--Installer validation checks 
--Installer failure diagnostics
--Installer trace log 
+- USB update installer 
+- Installer validation checks 
+- Installer failure diagnostics
+- Installer trace log 
 
 
 ## Current Architecture
