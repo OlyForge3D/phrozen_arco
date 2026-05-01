@@ -30,9 +30,9 @@ KAOS is no longer a single-file add-on. The current architecture uses a top-leve
 ---
 
 ## Safety & movement protection
--Safer movement protection 
--Trusted homing checks/ tracking & false-homed-state protection 
--Safer recovery handling (WIP)
+- Safer movement protection 
+- Trusted homing checks/ tracking & false-homed-state protection 
+- Safer recovery handling (WIP)
 -Startup safety reset(WIP)
 -Protected service-position moves 
 -Safer probing requirements 
