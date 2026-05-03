@@ -1,0 +1,29 @@
+{
+    "name": "toolchange_mid_print",
+    "description": "Mid-print color change at Z=50. Compares the new TOOLCHANGE wrapper against the equivalent baseline sequence (slicer-side Z-sandwich + manual T + ORCA_PURGE).",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50,
+        "extruder_temp": 220,
+        "extruder_target": 220
+    },
+    "current": {
+        "entry_point": "TOOLCHANGE",
+        "params": {"NEXT": 1, "FLUSH": 50, "RETRACT_OLD": 2, "RETRACT_NEW": 2}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "G91"},
+            {"raw": "G1 Z3 F12000"},
+            {"raw": "G90"},
+            {"raw": "M83"},
+            {"raw": "G1 E-2 F1800"},
+            {"raw": "T1"},
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}},
+            {"raw": "G91"},
+            {"raw": "G1 Z-3 F12000"},
+            {"raw": "G90"}
+        ]
+    }
+}

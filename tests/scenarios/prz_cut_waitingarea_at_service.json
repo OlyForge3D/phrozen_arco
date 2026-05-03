@@ -1,0 +1,17 @@
+{
+    "name": "prz_cut_waitingarea_at_service",
+    "description": "PRZ_CUT_WAITINGAREA called from already at service level (Y >= service_level_threshold). Exercises the optimization branch that slides X directly to chute_x without routing through the waiting area first.",
+    "state": {
+        "pos_x": 200,
+        "pos_y": 325,
+        "pos_z": 50
+    },
+    "current": {
+        "entry_point": "PRZ_CUT_WAITINGAREA",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PRZ_CUT_WAITINGAREA",
+        "params": {}
+    }
+}

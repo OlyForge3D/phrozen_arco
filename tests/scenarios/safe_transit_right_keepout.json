@@ -1,0 +1,17 @@
+{
+    "name": "safe_transit_right_keepout",
+    "description": "PRZ_WAITINGAREA called from a position above the waiting line (Y=325, in service area) but outside the safe X corridor on the RIGHT (X=275, above safe_corridor_x_max=250). Exercises the round-1 _SAFE_SERVICE_TRANSIT corridor-clamp branch that slides X to safe_corridor_x_max before traversing to the waiting area.",
+    "state": {
+        "pos_x": 275,
+        "pos_y": 325,
+        "pos_z": 50
+    },
+    "current": {
+        "entry_point": "PRZ_WAITINGAREA",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PRZ_WAITINGAREA",
+        "params": {}
+    }
+}

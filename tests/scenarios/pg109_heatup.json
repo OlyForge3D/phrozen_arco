@@ -1,0 +1,7 @@
+{
+    "name": "pg109_heatup",
+    "description": "PG109 — firmware-fired heat-up to print temp (capped at 250C).",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 50, "extruder_temp": 150},
+    "current": {"entry_point": "PG109", "params": {}},
+    "baseline": {"entry_point": "PG109", "params": {}}
+}

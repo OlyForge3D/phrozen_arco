@@ -25,7 +25,7 @@ You only need to edit **one config file** and your slicer G-code.
 You will only edit:
 
 - `printer.cfg` (minimal changes)
-- `addon.cfg` (user settings)
+- `kaos.cfg` (user settings)
 - Your slicer **G-code**
 
 You will NOT edit other stock Phrozen files.
@@ -37,7 +37,7 @@ You will NOT edit other stock Phrozen files.
 Copy these files to your printer:
 
 
-- `addon.cfg`
+- `kaos.cfg`
 - `magic_ams_by_chris.cfg`
 
 
@@ -59,7 +59,7 @@ Near the top of the file find these lines:
 ```
 Immediately after it, add:
 ```ini
-[include addon.cfg]
+[include kaos.cfg]
 
 ```
 
@@ -67,7 +67,7 @@ It should now look like this:
 ```ini
 [include printer_MCU.cfg]
 [include printer_gcode_macro.cfg]
-[include addon.cfg]
+[include kaos.cfg]
 ```
 
 While printer.cfg is open, also comment out this section:
@@ -89,7 +89,7 @@ Save and restart Klipper.
 
 Open:
 
-- `addon.cfg`
+- `kaos.cfg`
 
 Find this section near the top:
 
@@ -97,7 +97,7 @@ Find this section near the top:
 
 This is the **only section most users should change.**
 
-Here you can turn features on and off and set variables to control how some of the features work. The variable have been set to tested, safe (hopefully) values. See the addon.cfg file for details of the values.
+Here you can turn features on and off and set variables to control how some of the features work. The variable have been set to tested, safe (hopefully) values. See the kaos.cfg file for details of the values.
 
 After making any changes tovalues in the `[gcode_macro _USER_CONFIG]`, save the file and **restart Klipper**.
 
@@ -156,51 +156,28 @@ If you use AMS / multi-material:
 
 - Make sure this file is uploaded:
   - `magic_ams_by_chris.cfg`
-- Make sure it is included in addon.cfg (it is by default):
+- Make sure it is included in kaos.cfg (it is by default):
   - `[include magic_ams_by_chris.cfg]`
 
-- Save `addon.cfg`
+- Save `kaos.cfg`
 - Restart Klipper
 
 
-Copy the following code to the 'Change Filament G-Code'sectiopn of your MAchine Gcode
+Copy the following single line to the 'Change Filament G-Code' section of your Machine G-code:
+
 ```gcode
-; =================================================================
-; Filament Change Sequence with Z-Sandwich
-; =================================================================
-; IMPORTANT: Requires PG101 and ORCA_PURGE macros from AddOn.cfg
-; See README.md for setup instructions.
-;
-; Z-Sandwich Logic:
-;   1. Slicer lifts Z +3mm at start
-;   2. PG101 + Firmware do their work (no Z changes in macros)
-;   3. Slicer restores Z -3mm at end
-; This prevents Z stacking errors from competing Z moves.
-; =================================================================
-
-; --- 1. GLOBAL SAFETY LIFT ---
-G91
-G1 Z3 F12000      ; Lift Z +3mm (maintained throughout process)
-G90
-M83
-
-; --- 2. EXECUTE CHANGE ---
-; Retract OLD filament
-G1 E-{retraction_length[current_extruder]} F1800
-
-; Tool Change (Calls PG101 -> Firmware Unload/Load)
-T[next_extruder]
-
-; Purge & Wipe
-ORCA_PURGE FLUSH={flush_length} RETRACT={retraction_length[next_extruder]}
-
-; --- 3. GLOBAL RESTORE ---
-G91
-G1 Z-3 F12000     ; Restore Z -3mm (back to print height)
-G90
-
-;##### END OF 'MAGIC AMS By CHRIS' GCODE #######
+TOOLCHANGE NEXT={next_extruder} FLUSH={flush_length} RETRACT_OLD={retraction_length[current_extruder]} RETRACT_NEW={retraction_length[next_extruder]}
 ```
+
+That one line replaces the old multi-line block. The `TOOLCHANGE` macro (defined in `magic_ams_by_chris.cfg`) handles everything atomically:
+
+1. Lifts Z by 3mm (skipped if it would exceed the Z safety threshold)
+2. Retracts the old filament by `RETRACT_OLD` (your per-filament setting)
+3. Calls the firmware tool change `T{NEXT}` (which fires `PG101` for the cut/unload/load)
+4. Calls `ORCA_PURGE` with the slicer's per-color flush and per-filament retract
+5. Lowers Z by 3mm — symmetric with step 1, in the same macro, so the lift and lower can never desynchronize
+
+The Z-sandwich and the firmware hand-off are now owned by a single wrapper instead of being split across PG101 and ORCA_PURGE.
 
 ## Step 6 — First Test Print
 
@@ -228,7 +205,7 @@ Unless you know whaty you are doing, do NOT edit:
 
 Only edit:
 
-- `addon.cfg`
+- `kaos.cfg`
 - Your slicer **Start G-code**
 
 ---

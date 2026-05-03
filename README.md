@@ -607,18 +607,17 @@ Acts as a central settings area where you can turn features on or off and adjust
 - Static include: `magic_ams_by_chris.cfg` — AMS / purge subsystem  
 
 ## AMS / Multi-Material Control
-- `apply_transit_override` — adjusts internal waiting-area position used during service moves  
-- `PG101` — smart pre-cut routine with optional extra cuts before firmware toolchange  
-- `ORCA_PURGE` — main color-change purge routine used by Orca Slicer  
-- `PRZ_SPITTING_START` — fixed-length priming of new filament after toolchange  
-- `PRZ_SPITTING_NORMAL` — disabled stock purge step (handled by ORCA_PURGE instead)  
-- `PRZ_SPITTING_END` — disabled stock temp-restore step (handled by ORCA_PURGE instead)  
-- `_SAFE_SERVICE_TRANSIT` — shared safe movement logic for service and purge areas  
-- `PRZ_WAITINGAREA` — moves toolhead to safe waiting position  
-- `PRZ_CUT_WAITINGAREA` — moves toolhead safely to cutter / chute area  
-- `PRZ_PAUSE_WAITINGAREA` — safe pause position away from the print  
-- `PRZ_WIPEMOUTH` — multi-lane nozzle wipe routine for even wear on wiper  
-- `PRINT_END` override — adds optional extra cuts before final firmware retract and shutdown  
+- `TOOLCHANGE` — atomic per-color tool change; the slicer's Change-Filament G-code calls this. Owns the Z-sandwich (lift before, lower after) symmetrically in one macro so the lift and lower can never desync.
+- `ORCA_PURGE` — color-transition purge called by `TOOLCHANGE` (or directly for testing). Splits long purges into chunks with kicks, then wipes and restores temp/fans. Does NOT touch Z.
+- `PG101` — pre-cut path fired by firmware inside `T[]`. Travels to chute, heats, depressurizes. Does NOT touch Z (TOOLCHANGE owns it).
+- `PRZ_SPITTING_START` — fixed-length gears-to-nozzle priming of new filament.
+- `PRZ_SPITTING_END` — restores print temp after PG101's `+temp_overshoot` heating.
+- `_SAFE_SERVICE_TRANSIT` — shared corridor-aware pathing to the waiting area.
+- `PRZ_WAITINGAREA` — move toolhead to safe waiting position.
+- `PRZ_CUT_WAITINGAREA` — move toolhead safely to cutter / chute area.
+- `PRZ_PAUSE_WAITINGAREA` — safe pause position away from the print.
+- `PRZ_WIPEMOUTH` — single-lane nozzle wipe across the brush.
+- `PRZ_GEOMETRY` / `PRZ_RUNTIME_STATE` — geometry inputs (canonical) and PG104 runtime captures (with safe fallback defaults).
 
 ## Cooling & Fan Control
 Automatically manages the mainboard fan to keep the printer electronics cool while reducing unnecessary fan noise. The system uses temperature readings to decide when the fan should run faster or slower.

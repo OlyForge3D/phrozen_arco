@@ -1,0 +1,17 @@
+{
+    "name": "g30_default_runs",
+    "description": "G30 with default _PROBE_GATE state (g30_enabled=1, the boot default). Confirms the new gate variable is wired correctly: G30's body should run in full. Both branches probe; trace should be identical.",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50
+    },
+    "current": {
+        "entry_point": "G30",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "G30",
+        "params": {}
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "name": "pg113_spit_normal",
+    "description": "PG113 \u2014 representative of the firmware-fired PG112-PG119 family. After round 2 they all delegate to _SPITTING_FRAME PRIME=1.",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50,
+        "extruder_temp": 220
+    },
+    "current": {
+        "entry_point": "PG113",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PG113",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "Three intentional cleanups: (1) Round 4's PRZ_SPITTING_START dropped one redundant G92 E0 (E was already at 0 from the prior G92 E0). (2) Round 3 added target_accel=2500 as the PRZ_RUNTIME_STATE default to defuse the ACCEL=0 trap when PG104 hasn't run. (3) Round 2's _SPITTING_FRAME removed two redundant G90 calls (no-op repeats). All three are safety-positive cleanups; functional motion is unchanged.",
+    "intent_trace_hash": "sha256:a5b2f1ca8d5427835b9ec6811e4df7e6b6d65854ea810ae538fe3e6d9be6438c"
+}

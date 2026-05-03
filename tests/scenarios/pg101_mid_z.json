@@ -1,0 +1,21 @@
+{
+    "name": "pg101_mid_z",
+    "description": "PG101 (firmware-fired pre-cut) at typical Z. EXPECTED DIFF: baseline PG101 lifted Z internally; current PG101 does NOT (TOOLCHANGE owns the Z sandwich now). This is the headline intentional change in commit 9690420.",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50,
+        "extruder_temp": 220
+    },
+    "current": {
+        "entry_point": "PG101",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PG101",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "PG101 in commit 9690420 dropped the internal Z lift; the lift is now owned by TOOLCHANGE. PG101 also dropped extensive log noise. The motion sequence should: skip the inner G91/G1 Z1/G90 + return-side G91/G1 Z-1/G90 ladder, drop the wait_pause park between heating and depressurize, and depressurize at chute_x/service_y instead of wait_pause/waiting_y.",
+    "intent_trace_hash": "sha256:4ffe09b1c83ab3ebfadacf589e8c0605e7817216fafe1b694fdbf572f86b8ea9"
+}
