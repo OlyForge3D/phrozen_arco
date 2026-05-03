@@ -1,0 +1,17 @@
+{
+    "name": "wipemouth_from_print",
+    "description": "PRZ_WIPEMOUTH called from a print position (Y=100, well below service area). Exercises _SAFE_SERVICE_TRANSIT then the wipe brush sweep.",
+    "state": {
+        "pos_x": 150,
+        "pos_y": 100,
+        "pos_z": 50
+    },
+    "current": {
+        "entry_point": "PRZ_WIPEMOUTH",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PRZ_WIPEMOUTH",
+        "params": {}
+    }
+}

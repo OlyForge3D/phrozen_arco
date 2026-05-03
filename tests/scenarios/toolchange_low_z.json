@@ -1,0 +1,18 @@
+{
+    "name": "toolchange_low_z",
+    "description": "First-layer tool change at Z=5. Sandwich lift should still happen (5+3=8, well within 300mm safe limit).",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 5},
+    "current": {
+        "entry_point": "TOOLCHANGE",
+        "params": {"NEXT": 2, "FLUSH": 50, "RETRACT_OLD": 2, "RETRACT_NEW": 2}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "G91"}, {"raw": "G1 Z3 F12000"}, {"raw": "G90"},
+            {"raw": "M83"}, {"raw": "G1 E-2 F1800"},
+            {"raw": "T2"},
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}},
+            {"raw": "G91"}, {"raw": "G1 Z-3 F12000"}, {"raw": "G90"}
+        ]
+    }
+}

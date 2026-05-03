@@ -1,0 +1,20 @@
+{
+    "name": "cancel_print",
+    "description": "CANCEL_PRINT at mid-print Z. Direct macro comparison.",
+    "state": {
+        "pos_x": 150,
+        "pos_y": 250,
+        "pos_z": 100
+    },
+    "current": {
+        "entry_point": "CANCEL_PRINT",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "CANCEL_PRINT",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "Round 5 (cross-macro coupling refactor) extracted the TP_OUT/TP_PUT probing-gate flags from G30/G31/PG28 into a dedicated _PROBE_GATE state container. PRINT_END calls TP_PUT, so the SET_GCODE_VARIABLE target renames from MACRO=G30/G31/PG28 (with VARIABLE=k/a/p) to MACRO=_PROBE_GATE (with VARIABLE=g30_enabled/g31_enabled/pg28_enabled). The values written (1 = enabled) are identical; only the storage location moved. Zero motion or heater/fan behavior change.",
+    "intent_trace_hash": "sha256:7112a66a97f9164699e5126726745e1d7e18cb76fb7302ff68413b4038e4b7a3"
+}

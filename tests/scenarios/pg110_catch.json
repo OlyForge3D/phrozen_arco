@@ -1,0 +1,7 @@
+{
+    "name": "pg110_catch",
+    "description": "PG110 — firmware-fired filament-catch with 5mm slow extrude.",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 50},
+    "current": {"entry_point": "PG110", "params": {}},
+    "baseline": {"entry_point": "PG110", "params": {}}
+}

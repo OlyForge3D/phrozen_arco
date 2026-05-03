@@ -1,0 +1,7 @@
+{
+    "name": "pg106",
+    "description": "PG106 — firmware-fired pre-cut depressurize: move to chute, extrude 9mm. Expects an INTENT diff because round 2 stripped log noise (no functional change).",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 50},
+    "current": {"entry_point": "PG106", "params": {}},
+    "baseline": {"entry_point": "PG106", "params": {}}
+}

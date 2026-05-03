@@ -1,0 +1,26 @@
+{
+    "name": "orca_purge_initial",
+    "description": "ORCA_PURGE with FLUSH=0 (initial color load).",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50
+    },
+    "current": {
+        "entry_point": "ORCA_PURGE",
+        "params": {
+            "FLUSH": 0,
+            "RETRACT": 2
+        }
+    },
+    "baseline": {
+        "entry_point": "ORCA_PURGE",
+        "params": {
+            "FLUSH": 0,
+            "RETRACT": 2
+        }
+    },
+    "expect_diff": true,
+    "diff_explanation": "Round 2 commit 710bd09 lowered initial_purge_length from 150mm to 80mm. Baseline FLUSH=0 splits 150mm into 2 chunks of 75mm each (75+2=77mm extruded with retract); current emits one 80mm chunk (80+2=82mm extruded with retract). PRZ_SPITTING_START still primes 55mm before this on both, so total filament passing the nozzle is 75+75+55=205mm baseline vs 80+55=135mm current. Documented user-approved change.",
+    "intent_trace_hash": "sha256:1f27155eeb6906ca179f3cab8ea777839922608be65939fa7a544d8b61ab5358"
+}

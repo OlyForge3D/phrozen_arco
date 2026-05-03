@@ -1,0 +1,7 @@
+{
+    "name": "orca_purge_color_change",
+    "description": "ORCA_PURGE with FLUSH=50 (typical color transition; single poop since 50 < max_poop_size).",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 50},
+    "current": {"entry_point": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}},
+    "baseline": {"entry_point": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}}
+}

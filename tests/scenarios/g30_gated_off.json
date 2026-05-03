@@ -1,0 +1,21 @@
+{
+    "name": "g30_gated_off",
+    "description": "G30 with the probing gate disabled. Confirms the gate-off path: when _PROBE_GATE.g30_enabled=0 (current) / G30.k=0 (baseline), G30's body should be skipped entirely (empty trace).",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50
+    },
+    "macro_state_overrides": {
+        "_PROBE_GATE": {"g30_enabled": 0},
+        "G30": {"k": 0}
+    },
+    "current": {
+        "entry_point": "G30",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "G30",
+        "params": {}
+    }
+}

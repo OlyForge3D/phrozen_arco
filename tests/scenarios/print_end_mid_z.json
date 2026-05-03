@@ -1,0 +1,20 @@
+{
+    "name": "print_end_mid_z",
+    "description": "PRINT_END at Z=200. Direct comparison: macro exists on both branches.",
+    "state": {
+        "pos_x": 150,
+        "pos_y": 250,
+        "pos_z": 200
+    },
+    "current": {
+        "entry_point": "PRINT_END",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PRINT_END",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "Round 5 (cross-macro coupling refactor) extracted the TP_OUT/TP_PUT probing-gate flags from G30/G31/PG28 into a dedicated _PROBE_GATE state container. PRINT_END calls TP_PUT, so the SET_GCODE_VARIABLE target renames from MACRO=G30/G31/PG28 (with VARIABLE=k/a/p) to MACRO=_PROBE_GATE (with VARIABLE=g30_enabled/g31_enabled/pg28_enabled). The values written (1 = enabled) are identical; only the storage location moved. Zero motion or heater/fan behavior change.",
+    "intent_trace_hash": "sha256:88fd8735eb91a120ed476ff292a3493e913bdbdf4833e6063bc3c40dc054a4e9"
+}

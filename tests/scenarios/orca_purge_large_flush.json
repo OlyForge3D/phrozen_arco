@@ -1,0 +1,7 @@
+{
+    "name": "orca_purge_large_flush",
+    "description": "ORCA_PURGE with FLUSH=200 (multi-poop: 200/100=2 chunks).",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 50},
+    "current": {"entry_point": "ORCA_PURGE", "params": {"FLUSH": 200, "RETRACT": 2}},
+    "baseline": {"entry_point": "ORCA_PURGE", "params": {"FLUSH": 200, "RETRACT": 2}}
+}

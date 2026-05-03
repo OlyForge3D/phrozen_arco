@@ -1,0 +1,17 @@
+{
+    "name": "toolchange_near_z_max",
+    "description": "Tool change near max Z (Z=298). Lift would push past z_lift_safe_max (300), so should be skipped on both old and new code paths.",
+    "state": {"pos_x": 100, "pos_y": 100, "pos_z": 298},
+    "current": {
+        "entry_point": "TOOLCHANGE",
+        "params": {"NEXT": 1, "FLUSH": 50, "RETRACT_OLD": 2, "RETRACT_NEW": 2}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "; baseline at Z=298: slicer-side Z lift would push to Z=301 which exceeds z_max=303; baseline did this unconditionally and would have errored. The new TOOLCHANGE skips the lift here."},
+            {"raw": "M83"}, {"raw": "G1 E-2 F1800"},
+            {"raw": "T1"},
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}}
+        ]
+    }
+}

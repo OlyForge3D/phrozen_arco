@@ -1,0 +1,22 @@
+{
+    "name": "pg108_single_color",
+    "description": "PG108 \u2014 firmware-fired single-color M3 mode spitting (heat + spit + wipe + park).",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50,
+        "extruder_temp": 220,
+        "cooling_fan_speed": 0.5
+    },
+    "current": {
+        "entry_point": "PG108",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PG108",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "Round 2 cleaned up PG108: the motion path (heat -> waiting -> spit -> wipe -> park) is preserved verbatim. The trace shows one residual difference at the fan-restore line: baseline reads the LIVE `printer['fan_generic cooling_fan'].speed` and re-sets it (effectively a no-op since the fan didn't change), while current reads the CAPTURED PG104 value `PRZ_RUNTIME_STATE.cooling_fan_speed` and restores to that. In production both produce the same value because PG104 captures the live fan speed at print start; in this test scenario PG104 hasn't run, so the captured default (254) appears instead of the test's seeded live value (0.5). This unifies PG108's fan-restore pattern with the rest of the codebase (_SPITTING_FRAME, ORCA_PURGE all use captured PRZ_RUNTIME_STATE).",
+    "intent_trace_hash": "sha256:70fe1e88e21a90ee6ab5e834cd13279d4a101e4edc82295f8b24370883fe482a"
+}

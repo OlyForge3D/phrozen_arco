@@ -1,0 +1,21 @@
+{
+    "name": "pg111_end_only",
+    "description": "PG111 \u2014 firmware-fired temp-restore-only (end-only, no prime). Calls _SPITTING_FRAME PRIME=0.",
+    "state": {
+        "pos_x": 100,
+        "pos_y": 100,
+        "pos_z": 50,
+        "extruder_temp": 220
+    },
+    "current": {
+        "entry_point": "PG111",
+        "params": {}
+    },
+    "baseline": {
+        "entry_point": "PG111",
+        "params": {}
+    },
+    "expect_diff": true,
+    "diff_explanation": "Two intentional differences: (1) Round 3 added target_accel=2500 as the PRZ_RUNTIME_STATE default to defuse the ACCEL=0 trap when PG104 hasn't run; baseline emits SET_VELOCITY_LIMIT ACCEL=0 in this state which would freeze motion. (2) Round 2's _SPITTING_FRAME removed two redundant G90 calls between the two park moves (G90 only matters once per state change; repeating it is a no-op). Both are safety-positive cleanups.",
+    "intent_trace_hash": "sha256:5d7c8344d01ce46aee8f66243b31771a8bf8580ccf60445e345b69faa87743ba"
+}
