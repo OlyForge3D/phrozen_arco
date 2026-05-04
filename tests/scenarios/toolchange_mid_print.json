@@ -1,6 +1,6 @@
 {
     "name": "toolchange_mid_print",
-    "description": "Mid-print color change at Z=50. Compares the new TOOLCHANGE wrapper against the equivalent baseline sequence (slicer-side Z-sandwich + manual T + ORCA_PURGE).",
+    "description": "Mid-print color change at Z=50. TOOLCHANGE no longer fires T<n> (Orca emits it itself) or ORCA_PURGE (deferred to PRZ_SPITTING_END post-prime). Verifies that TOOLCHANGE produces only: lift, retract OLD, queue _TOOLCHANGE_PENDING, lower.",
     "state": {
         "pos_x": 100,
         "pos_y": 100,
@@ -19,8 +19,9 @@
             {"raw": "G90"},
             {"raw": "M83"},
             {"raw": "G1 E-2 F1800"},
-            {"raw": "T1"},
-            {"call": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=flush   VALUE=50.0"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=retract VALUE=2.0"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"},
             {"raw": "G91"},
             {"raw": "G1 Z-3 F12000"},
             {"raw": "G90"}

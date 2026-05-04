@@ -1,0 +1,24 @@
+{
+    "name": "spitting_end_with_pending_toolchange",
+    "description": "PRZ_SPITTING_END with _TOOLCHANGE_PENDING.active=1 (TOOLCHANGE just queued a flush). Verifies that PRZ_SPITTING_END auto-fires ORCA_PURGE with the stashed FLUSH/RETRACT, clears active=0 first, and skips the standalone M104 restore (ORCA_PURGE handles temp + fans). Position simulates being at the chute after firmware prime.",
+    "state": {
+        "pos_x": 124,
+        "pos_y": 322,
+        "pos_z": 53,
+        "extruder_temp": 240,
+        "extruder_target": 240
+    },
+    "macro_state_overrides": {
+        "_TOOLCHANGE_PENDING": {"active": 1, "flush": 32.6, "retract": 0.4}
+    },
+    "current": {
+        "entry_point": "PRZ_SPITTING_END",
+        "params": {}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active VALUE=0"},
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 32.6, "RETRACT": 0.4}}
+        ]
+    }
+}

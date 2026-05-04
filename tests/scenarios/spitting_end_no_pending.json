@@ -1,0 +1,23 @@
+{
+    "name": "spitting_end_no_pending",
+    "description": "PRZ_SPITTING_END with _TOOLCHANGE_PENDING.active=0 (single-color M3 path; no slicer flush queued). Should hit the else-branch: just M104 to restore target temp, no ORCA_PURGE.",
+    "state": {
+        "pos_x": 140,
+        "pos_y": 322,
+        "pos_z": 50,
+        "extruder_temp": 240,
+        "extruder_target": 240
+    },
+    "macro_state_overrides": {
+        "_TOOLCHANGE_PENDING": {"active": 0, "flush": 0, "retract": 0}
+    },
+    "current": {
+        "entry_point": "PRZ_SPITTING_END",
+        "params": {}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "M104 S205"}
+        ]
+    }
+}

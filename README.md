@@ -607,11 +607,12 @@ Acts as a central settings area where you can turn features on or off and adjust
 - Static include: `magic_ams_by_chris.cfg` — AMS / purge subsystem  
 
 ## AMS / Multi-Material Control
-- `TOOLCHANGE` — atomic per-color tool change; the slicer's Change-Filament G-code calls this. Owns the Z-sandwich (lift before, lower after) symmetrically in one macro so the lift and lower can never desync.
-- `ORCA_PURGE` — color-transition purge called by `TOOLCHANGE` (or directly for testing). Splits long purges into chunks with kicks, then wipes and restores temp/fans. Does NOT touch Z.
+- `TOOLCHANGE` — tool-change setup; called by the slicer's Change-Filament G-code BEFORE Orca emits its own `T<n>`. Lifts Z, retracts old filament, stashes the slicer's FLUSH/RETRACT into `_TOOLCHANGE_PENDING` for `PRZ_SPITTING_END` to consume post-prime, lowers Z. Does NOT fire `T<n>` (Orca does that automatically afterwards) and does NOT call `ORCA_PURGE` (deferred to `PRZ_SPITTING_END` so the flush + wipe land *after* the cut, with the new color).
+- `ORCA_PURGE` — color-transition purge. Auto-fired by `PRZ_SPITTING_END` at the tail of the firmware's prime sequence using the FLUSH/RETRACT TOOLCHANGE stashed. Splits long purges into chunks with kicks, then wipes and restores temp/fans. Can also be invoked directly for testing. Does NOT touch Z.
+- `_TOOLCHANGE_PENDING` — single-purpose state container that hands FLUSH/RETRACT from `TOOLCHANGE` (set) to `PRZ_SPITTING_END` (consume + clear).
 - `PG101` — pre-cut path fired by firmware inside `T[]`. Travels to chute, heats, depressurizes. Does NOT touch Z (TOOLCHANGE owns it).
 - `PRZ_SPITTING_START` — fixed-length gears-to-nozzle priming of new filament.
-- `PRZ_SPITTING_END` — restores print temp after PG101's `+temp_overshoot` heating.
+- `PRZ_SPITTING_END` — tail of `_SPITTING_FRAME`. If `_TOOLCHANGE_PENDING.active==1`, fires `ORCA_PURGE` with the stashed FLUSH/RETRACT (handles its own temp + fan restore); otherwise just M104 to restore target temp (single-color path).
 - `_SAFE_SERVICE_TRANSIT` — shared corridor-aware pathing to the waiting area.
 - `PRZ_WAITINGAREA` — move toolhead to safe waiting position.
 - `PRZ_CUT_WAITINGAREA` — move toolhead safely to cutter / chute area.

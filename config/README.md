@@ -169,15 +169,15 @@ Copy the following single line to the 'Change Filament G-Code' section of your M
 TOOLCHANGE NEXT={next_extruder} FLUSH={flush_length} RETRACT_OLD={retraction_length[current_extruder]} RETRACT_NEW={retraction_length[next_extruder]}
 ```
 
-That one line replaces the old multi-line block. The `TOOLCHANGE` macro (defined in `magic_ams_by_chris.cfg`) handles everything atomically:
+That one line replaces the old multi-line block. Orca will then automatically emit its own `T<n>` (the actual tool change) immediately after, which the firmware uses to drive the cut + load + prime cycle.
 
-1. Lifts Z by 3mm (skipped if it would exceed the Z safety threshold)
-2. Retracts the old filament by `RETRACT_OLD` (your per-filament setting)
-3. Calls the firmware tool change `T{NEXT}` (which fires `PG101` for the cut/unload/load)
-4. Calls `ORCA_PURGE` with the slicer's per-color flush and per-filament retract
-5. Lowers Z by 3mm — symmetric with step 1, in the same macro, so the lift and lower can never desynchronize
+How a tool change actually plays out on hardware:
 
-The Z-sandwich and the firmware hand-off are now owned by a single wrapper instead of being split across PG101 and ORCA_PURGE.
+1. **Slicer fires our `TOOLCHANGE`** — lifts Z 3mm (skipped near the Z safety ceiling), retracts the old filament by `RETRACT_OLD`, stashes the slicer's `FLUSH` and `RETRACT_NEW` for later, lowers Z. **No `T<n>` and no `ORCA_PURGE` here yet.**
+2. **Slicer fires its own `T<n>`** — the firmware takes over: depressurize, travel to cutter, **CUT**, load new filament, prime 55mm of new color at the chute (firmware-fired PG101 → PG106 → PG110 → PG113 → `_SPITTING_FRAME`).
+3. **`PRZ_SPITTING_END`** (the tail of the firmware's prime sequence) sees the pending stash from step 1 and runs **`ORCA_PURGE`** — color flush (slicer's `FLUSH` value) + cool kicks + wipe across the brush + temp/fan restore. The wipe lands on the new color, after the prime, just before the print resumes.
+
+This split exists because Orca always emits its own `T<n>` after the change-filament-gcode block — there's no slicer setting that suppresses it. Letting the firmware's `T<n>` drive the cut keeps cuts to exactly one per change, and deferring `ORCA_PURGE` to `PRZ_SPITTING_END` keeps the flush + wipe ordered correctly relative to the cut. The Z lift/lower is symmetric inside `TOOLCHANGE`, so it can never desync.
 
 ## Step 6 — First Test Print
 

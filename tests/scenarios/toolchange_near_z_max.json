@@ -1,6 +1,6 @@
 {
     "name": "toolchange_near_z_max",
-    "description": "Tool change near max Z (Z=298). Lift would push past z_lift_safe_max (300), so should be skipped on both old and new code paths.",
+    "description": "Tool change near max Z (Z=298). Lift would push past z_lift_safe_max (300), so should be skipped. TOOLCHANGE no longer fires T<n> or ORCA_PURGE (see toolchange_mid_print).",
     "state": {"pos_x": 100, "pos_y": 100, "pos_z": 298},
     "current": {
         "entry_point": "TOOLCHANGE",
@@ -8,10 +8,11 @@
     },
     "baseline": {
         "synthetic_sequence": [
-            {"raw": "; baseline at Z=298: slicer-side Z lift would push to Z=301 which exceeds z_max=303; baseline did this unconditionally and would have errored. The new TOOLCHANGE skips the lift here."},
+            {"raw": "; baseline at Z=298: TOOLCHANGE skips Z lift (would push to Z=301, exceeds z_lift_max). Retract OLD, queue pending state, no lift/lower, no T, no ORCA_PURGE."},
             {"raw": "M83"}, {"raw": "G1 E-2 F1800"},
-            {"raw": "T1"},
-            {"call": "ORCA_PURGE", "params": {"FLUSH": 50, "RETRACT": 2}}
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=flush   VALUE=50.0"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=retract VALUE=2.0"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"}
         ]
     }
 }
