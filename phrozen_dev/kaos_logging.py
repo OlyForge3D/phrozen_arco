@@ -43,7 +43,7 @@ KAOS_LOG_LEVEL_INFO = 2
 KAOS_LOG_LEVEL_DEBUG = 3
 
 # Visible marker so we can prove which file Klipper loaded.
-KAOS_LOGGING_VERSION = "2026-04-29-v11-silence-missing-tty2"
+KAOS_LOGGING_VERSION = "2026-05-03-v13-downgrade-pause-serial-spam"
 
 KAOS_LEVEL_TAGS = ("[ERROR]", "[WARN]", "[INFO]", "[DEBUG]")
 
@@ -350,14 +350,48 @@ def _kaos_is_known_debug_noise(self, msg):
         "json_data[",
         "self.G_",
         "=====self.",
+        "self.Flag=",
+        "command_string=",
+        "gcmd is not None:",
 
         # Phrozen function-entry traces
+        "=====[(cmds.python)",
+        "===== [(cmds.python)",
         "[(base.python)",
         "[(base.py)",
         "[(cmds.python)",
         "[(cmds.py)",
         "[(dev.python)",
         "[(dev.py)",
+
+        # Chinese vendor command/motion traces. These are human console/debug
+        # lines showing commands already being sent through run_script_from_command.
+        # They are not the functional +P/+Mode/+T protocol/status bus.
+        "外部宏命令-",
+        "开始调用外部宏命令-",
+        "结束调用外部宏命令",
+        "调用外部宏-",
+        "调用宏命令:",
+        "Z轴临时抬升",
+        "Z轴临时下降",
+        "Z轴下拉降低",
+        "Z轴上拉升高",
+        "Z轴上升",
+        "恢复结束，开启风扇",
+
+        # English/French translations of the same vendor debug families.
+        "External macro command-",
+        "External macro command ",
+        "Starting external macro",
+        "Finished external macro",
+        "Z temporary lift",
+        "Z temporary lower",
+        "Z lowered",
+        "Z raised",
+        "Commande de macro externe",
+        "Appel de la macro externe",
+        "Abaissement temporaire de Z",
+        "Relèvement temporaire de Z",
 
         # Serial byte dump chatter
         "byte count",
@@ -380,6 +414,18 @@ def _kaos_is_known_debug_noise(self, msg):
         "Run Current:",
     )
     if text.startswith(debug_prefixes):
+        return True
+
+    debug_contains = (
+        "Cmds_P1TnManualChangeChannel",
+        "Cmds_P1CnAutoChangeChannel",
+        "command_string='",
+        "gcode命令=",
+        "GCODE命令",
+        "G-code command",
+        "gcodecommand=",
+    )
+    if any(token in text for token in debug_contains):
         return True
 
     # Numeric debug lines emitted while parsing DriveCodeFile.dat, e.g.
@@ -446,6 +492,21 @@ def _kaos_filtered_respond_info(self, msg):
             category, message_text = self.kaos_strip_category_prefix(clean_text)
             if self.kaos_is_silenced_serial_noise(message_text):
                 return
+
+            # KAOS v13: downgrade known vendor spam that is tagged WARN/ERROR
+            # upstream but is routine state chatter on the Arco. Keep it visible
+            # only when DEBUG logging is intentionally enabled.
+            msg_lower = str(message_text).lower()
+            if str(message_text).strip() == "Not currently paused":
+                level = "DEBUG"
+                category = category or "DEV"
+            elif (
+                "cmds_usbconnecterrorcheck" in msg_lower
+                and "reinitializing serial port" in msg_lower
+            ):
+                level = "DEBUG"
+                category = category or "SERIAL"
+
             self.kaos_log(level, message_text, category)
             return
 
