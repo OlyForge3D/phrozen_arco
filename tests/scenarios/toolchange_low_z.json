@@ -1,6 +1,6 @@
 {
     "name": "toolchange_low_z",
-    "description": "First-layer tool change at Z=5. Sandwich lift should still happen (5+3=8, well within 300mm safe limit). TOOLCHANGE no longer fires T<n> or ORCA_PURGE (see toolchange_mid_print).",
+    "description": "First-layer tool change at Z=5. Sandwich lift should still happen (5+3=8, well within Z safety limit). TOOLCHANGE lifts Z + queues lifted=1 for PRZ_SPITTING_END to lower later.",
     "state": {"pos_x": 100, "pos_y": 100, "pos_z": 5},
     "current": {
         "entry_point": "TOOLCHANGE",
@@ -12,8 +12,8 @@
             {"raw": "M83"}, {"raw": "G1 E-2 F1800"},
             {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=flush   VALUE=50.0"},
             {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=retract VALUE=2.0"},
-            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"},
-            {"raw": "G91"}, {"raw": "G1 Z-3 F12000"}, {"raw": "G90"}
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=lifted  VALUE=1"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"}
         ]
     }
 }

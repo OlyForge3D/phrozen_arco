@@ -1,6 +1,6 @@
 {
     "name": "toolchange_mid_print",
-    "description": "Mid-print color change at Z=50. TOOLCHANGE no longer fires T<n> (Orca emits it itself) or ORCA_PURGE (deferred to PRZ_SPITTING_END post-prime). Verifies that TOOLCHANGE produces only: lift, retract OLD, queue _TOOLCHANGE_PENDING, lower.",
+    "description": "Mid-print color change at Z=50. TOOLCHANGE lifts Z (head stays elevated through the firmware travel + cut + load + prime + ORCA_PURGE), retracts OLD, queues _TOOLCHANGE_PENDING (with lifted=1). The matching Z lower happens in PRZ_SPITTING_END after ORCA_PURGE. Verifies that TOOLCHANGE no longer fires T<n> or ORCA_PURGE itself.",
     "state": {
         "pos_x": 100,
         "pos_y": 100,
@@ -21,10 +21,8 @@
             {"raw": "G1 E-2 F1800"},
             {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=flush   VALUE=50.0"},
             {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=retract VALUE=2.0"},
-            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"},
-            {"raw": "G91"},
-            {"raw": "G1 Z-3 F12000"},
-            {"raw": "G90"}
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=lifted  VALUE=1"},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active  VALUE=1"}
         ]
     }
 }

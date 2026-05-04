@@ -1,6 +1,6 @@
 {
     "name": "spitting_end_with_pending_toolchange",
-    "description": "PRZ_SPITTING_END with _TOOLCHANGE_PENDING.active=1 (TOOLCHANGE just queued a flush). Verifies that PRZ_SPITTING_END auto-fires ORCA_PURGE with the stashed FLUSH/RETRACT, clears active=0 first, and skips the standalone M104 restore (ORCA_PURGE handles temp + fans). Position simulates being at the chute after firmware prime.",
+    "description": "PRZ_SPITTING_END with _TOOLCHANGE_PENDING.active=1 and lifted=1 (typical mid-print path). Verifies clear-active-first → ORCA_PURGE → clear-lifted → Z lower (mirrors TOOLCHANGE's lift). Position simulates being at the chute after firmware prime, with Z 3mm above print height.",
     "state": {
         "pos_x": 124,
         "pos_y": 322,
@@ -9,7 +9,7 @@
         "extruder_target": 240
     },
     "macro_state_overrides": {
-        "_TOOLCHANGE_PENDING": {"active": 1, "flush": 32.6, "retract": 0.4}
+        "_TOOLCHANGE_PENDING": {"active": 1, "flush": 32.6, "retract": 0.4, "lifted": 1}
     },
     "current": {
         "entry_point": "PRZ_SPITTING_END",
@@ -18,7 +18,9 @@
     "baseline": {
         "synthetic_sequence": [
             {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active VALUE=0"},
-            {"call": "ORCA_PURGE", "params": {"FLUSH": 32.6, "RETRACT": 0.4}}
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 32.6, "RETRACT": 0.4}},
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=lifted VALUE=0"},
+            {"raw": "G91"}, {"raw": "G1 Z-3 F12000"}, {"raw": "G90"}
         ]
     }
 }

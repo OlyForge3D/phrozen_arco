@@ -1,0 +1,24 @@
+{
+    "name": "spitting_end_with_pending_no_lift",
+    "description": "PRZ_SPITTING_END with active=1 but lifted=0 (TOOLCHANGE skipped lift near Z max). Verifies that the Z-lower in the lifted-branch is gated properly: ORCA_PURGE fires + active is cleared, but no Z move happens. Mirrors the no-lift toolchange_near_z_max scenario.",
+    "state": {
+        "pos_x": 124,
+        "pos_y": 322,
+        "pos_z": 298,
+        "extruder_temp": 240,
+        "extruder_target": 240
+    },
+    "macro_state_overrides": {
+        "_TOOLCHANGE_PENDING": {"active": 1, "flush": 32.6, "retract": 0.4, "lifted": 0}
+    },
+    "current": {
+        "entry_point": "PRZ_SPITTING_END",
+        "params": {}
+    },
+    "baseline": {
+        "synthetic_sequence": [
+            {"raw": "SET_GCODE_VARIABLE MACRO=_TOOLCHANGE_PENDING VARIABLE=active VALUE=0"},
+            {"call": "ORCA_PURGE", "params": {"FLUSH": 32.6, "RETRACT": 0.4}}
+        ]
+    }
+}
