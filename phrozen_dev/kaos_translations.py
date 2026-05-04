@@ -1,6 +1,6 @@
+# KAOS_VERSION: v0.95
 ####################################
 # KAOS translation loader for Phrozen Arco AMS Klipper extension
-# V0.10 - language tables in ./lang/
 #
 # Source strings remain the original vendor Chinese strings.
 # Language tables live in a lang subpackage and are lazy-loaded:

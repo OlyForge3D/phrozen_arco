@@ -1,6 +1,6 @@
+# KAOS_VERSION: v0.95
 ####################################
 # KAOS logging shim for Phrozen Arco AMS Klipper extension
-# V0.9
 # Purpose:
 #   Keep vendor files mostly untouched by moving custom log filtering here.
 #
@@ -43,7 +43,7 @@ KAOS_LOG_LEVEL_INFO = 2
 KAOS_LOG_LEVEL_DEBUG = 3
 
 # Visible marker so we can prove which file Klipper loaded.
-KAOS_LOGGING_VERSION = "2026-05-03-v13-downgrade-pause-serial-spam"
+KAOS_LOGGING_VERSION = "KAOS-v0.95-2026-05-04"
 
 KAOS_LEVEL_TAGS = ("[ERROR]", "[WARN]", "[INFO]", "[DEBUG]")
 
