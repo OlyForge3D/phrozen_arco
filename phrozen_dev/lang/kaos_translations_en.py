@@ -1,6 +1,6 @@
+# KAOS_VERSION: v0.95
 ####################################
 # KAOS translation table for Phrozen Arco AMS Klipper extension
-# V0.9
 # Auto-generated from original vendor Chinese strings.
 # Do not edit kaos_logging.py for translation changes; edit language files instead.
 ####################################
