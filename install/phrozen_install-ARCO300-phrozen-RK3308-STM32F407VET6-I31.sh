@@ -1,4 +1,5 @@
 #!/bin/sh
+# KAOS_VERSION: v0.95
 
 # KAOS / Phrozen installer for ARCO300-MKS-RK3328-STM32F407VET6-I16
 # POSIX sh compatible.
