@@ -8,6 +8,16 @@ These are commands you can run from the Klipper/Fluidd console or via the **KAOS
 
 ---
 
+### Main Menu
+
+```gcode
+KAOS\_MENU
+```
+
+Opens the KAOS popup menu in the printer UI, giving quick access to common KAOS actions like logging, lights, calibration, safety, and dynamic speed.
+
+\---
+
 ### Lights
 
 **`KAOS_LIGHTS_ON` / `KAOS_LIGHTS_OFF` / `KAOS_LIGHTS_TOGGLE`**
