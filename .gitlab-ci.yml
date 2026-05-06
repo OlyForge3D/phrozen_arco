@@ -35,8 +35,12 @@ stages:
 
 # ---------------------------------------------------------------------------
 # Test: tests/verify.sh (audit + behavioral diff suite).
-# Needs git for `git ls-files` (audit traverses the repo) and jinja2 for
-# the render_macros module that diff_branches imports.
+# Needs:
+#   - git: audit traverses the repo, diff loads the baseline via `git show`.
+#   - jinja2: render_macros module that diff_branches imports.
+#   - the origin/PhrozenArcoKAOS ref: diff_branches' default BASELINE.
+#     GitLab's tag pipeline clone is detached-HEAD on the tag with no
+#     branch refs, so we explicitly fetch the baseline branch.
 # ---------------------------------------------------------------------------
 verify:
   stage: test
@@ -44,6 +48,7 @@ verify:
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends git
     - pip install --no-cache-dir jinja2
+    - git fetch origin PhrozenArcoKAOS:refs/remotes/origin/PhrozenArcoKAOS
   script:
     - bash tests/verify.sh
 
