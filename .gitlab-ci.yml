@@ -25,10 +25,15 @@ stages:
 
 # ---------------------------------------------------------------------------
 # Test: run on every push to a branch and on every tag.
+# Needs git for `git ls-files` (audit traverses the repo) and jinja2 for
+# the render_macros module that diff_branches imports.
 # ---------------------------------------------------------------------------
 verify:
   stage: test
   image: python:3-slim
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git
+    - pip install --no-cache-dir jinja2
   script:
     - bash tests/verify.sh
   rules:
@@ -41,6 +46,13 @@ verify:
 # job and prevents the release stage from running.
 # Exports KAOS_VERSION + ZIP_NAME via dotenv so the release job can reference
 # the actual filename.
+#
+# GATED: `when: manual` — the job appears in the GitLab pipeline UI as a
+# "play" button on tag pipelines but does NOT auto-fire. This is intentional
+# while the file-layout assumption is unverified: tagging accidentally must
+# not publish a possibly-wrong-format zip to the Releases page. Once a build
+# has been validated on hardware, change `when: manual` to `when: on_success`
+# (or remove the line entirely) to enable auto-build on every tag.
 # ---------------------------------------------------------------------------
 build_release_zip:
   stage: build
@@ -75,10 +87,15 @@ build_release_zip:
     expire_in: never
   rules:
     - if: $CI_COMMIT_TAG
+      when: manual
+      allow_failure: false
 
 # ---------------------------------------------------------------------------
 # Release: create a GitLab Release for the tag and attach the zip from the
 # build job as a downloadable asset link.
+#
+# Inherits the manual gating from build_release_zip via `needs:` — only
+# runs after build_release_zip has been manually triggered and succeeded.
 # ---------------------------------------------------------------------------
 release:
   stage: release
