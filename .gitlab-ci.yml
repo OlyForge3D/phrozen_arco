@@ -1,0 +1,94 @@
+# GitLab CI for KAOS / Phrozen Arco
+#
+# Pipelines:
+#   - Every push   → run `tests/verify.sh` (audit + behavioral diff suite)
+#   - Tag push     → verify, then build the release zip, then create a GitLab
+#                    Release with the zip attached as a downloadable asset
+#
+# Tag a release like:
+#   git tag v0.95
+#   git push origin v0.95
+#
+# The leading 'v' in the tag is stripped for the KAOS version in the filename:
+#   tag v0.95 → Arco_FW_V199_KAOS_0.95.zip
+#   tag 0.95  → Arco_FW_V199_KAOS_0.95.zip
+
+stages:
+  - test
+  - build
+  - release
+
+# ---------------------------------------------------------------------------
+# Test: run on every push to a branch and on every tag.
+# ---------------------------------------------------------------------------
+verify:
+  stage: test
+  image: python:3-slim
+  script:
+    - bash tests/verify.sh
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH
+
+# ---------------------------------------------------------------------------
+# Build: produce the release zip; only on tag pushes.
+# Stamps the tag-derived KAOS version into the zip filename and KAOS_VERSION.txt.
+# Exports KAOS_VERSION + ZIP_NAME via dotenv so the release job can reference
+# the actual filename (build_release.sh strips a leading 'v' from the tag).
+# ---------------------------------------------------------------------------
+build_release_zip:
+  stage: build
+  image: python:3-slim
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends git
+    - 'KAOS_VERSION="${CI_COMMIT_TAG#v}"'
+    - bash tools/build_release.sh "$KAOS_VERSION" 1.9.9
+    - 'ZIP_NAME="Arco_FW_V199_KAOS_${KAOS_VERSION}.zip"'
+    - test -f "dist/$ZIP_NAME" || (echo "Expected dist/$ZIP_NAME not found in build output:" && ls -la dist/ && exit 1)
+    - echo "KAOS_VERSION=$KAOS_VERSION" > build.env
+    - echo "ZIP_NAME=$ZIP_NAME" >> build.env
+  artifacts:
+    name: "kaos-$CI_COMMIT_TAG"
+    paths:
+      - dist/*.zip
+    reports:
+      dotenv: build.env
+    expire_in: never
+  rules:
+    - if: $CI_COMMIT_TAG
+
+# ---------------------------------------------------------------------------
+# Release: create a GitLab Release for the tag and attach the zip from the
+# build job as a downloadable asset link.
+# ---------------------------------------------------------------------------
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: build_release_zip
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "Releasing $CI_COMMIT_TAG → $ZIP_NAME"
+  release:
+    name: 'KAOS $CI_COMMIT_TAG'
+    description: |
+      KAOS release **$CI_COMMIT_TAG** for Phrozen Arco firmware **1.9.9**.
+
+      ## Install
+      1. Download the zip below
+      2. Unzip and copy the inner `phrozen_dev/` folder to a USB stick root
+      3. Plug into the printer and run the Phrozen update flow
+      4. After install, full power-cycle the printer (a Klipper-only restart is not enough; Python modules need a fresh load)
+
+      See the in-repo `README.md` and `config/README.md` for setup details.
+    tag_name: '$CI_COMMIT_TAG'
+    assets:
+      links:
+        # Tag-scoped artifact link: GitLab resolves this to the latest
+        # build_release_zip artifact for this tag. ZIP_NAME comes from the
+        # build job's dotenv (Arco_FW_V199_KAOS_<version>.zip with 'v' stripped).
+        - name: '$ZIP_NAME'
+          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/dist/${ZIP_NAME}?job=build_release_zip'
+          link_type: package
