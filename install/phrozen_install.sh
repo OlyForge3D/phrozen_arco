@@ -11,6 +11,7 @@ set -u
 TARGET_DIR="/home/mks/klipper/klippy/extras/phrozen_dev"
 CONFIG_DIR="/home/mks/printer_data/config"
 INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
+SAVE_CONFIG_TMP="/tmp/kaos_save_config_$$.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
 
 log() {
@@ -79,10 +80,19 @@ rmdir "$CONFIG_DIR/.kaos_mkdir_test" || fail "Cannot remove mkdir-test directory
 
 # Install log so we can prove this script actually ran and preserve live values before replacement.
 existing_fila_cut_x_pos="NOT_FOUND"
+rm -f "$SAVE_CONFIG_TMP"
 if [ -f "$CONFIG_DIR/printer.cfg" ]; then
     # Use the same grep pattern proven over SSH, then strip the key/comments/whitespace.
-    existing_fila_cut_x_pos=$(grep -m 1 -E '^[[:space:]]*fila_cut_x_pos[[:space:]]*:' "$CONFIG_DIR/printer.cfg"         | sed -E 's/^[[:space:]]*fila_cut_x_pos[[:space:]]*:[[:space:]]*//; s/[[:space:]]*[#;].*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')
+    existing_fila_cut_x_pos=$(grep -m 1 -E '^[[:space:]]*fila_cut_x_pos[[:space:]]*:' "$CONFIG_DIR/printer.cfg" \
+        | sed -E 's/^[[:space:]]*fila_cut_x_pos[[:space:]]*:[[:space:]]*//; s/[[:space:]]*[#;].*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')
     [ -n "$existing_fila_cut_x_pos" ] || existing_fila_cut_x_pos="NOT_FOUND"
+
+    # Preserve the existing Klipper SAVE_CONFIG block in the install log only.
+    # This does not copy it back into the deployed printer.cfg.
+    awk '
+        found { print; next }
+        /^#\*#.*SAVE_CONFIG/ { found=1; print }
+    ' "$CONFIG_DIR/printer.cfg" > "$SAVE_CONFIG_TMP"
 fi
 
 {
@@ -168,7 +178,17 @@ log "installed $lang_count language py files"
     echo "lang_count=$lang_count"
     echo ""
     echo "existing_fila_cut_x_pos=$existing_fila_cut_x_pos"
+    echo ""
+    echo "existing_save_config_block_begin"
+    if [ -s "$SAVE_CONFIG_TMP" ]; then
+        cat "$SAVE_CONFIG_TMP"
+    else
+        echo "NOT_FOUND"
+    fi
+    echo "existing_save_config_block_end"
 } >> "$INSTALL_LOG"
+
+rm -f "$SAVE_CONFIG_TMP"
 
 log "KAOS_INSTALL_SUCCESS: KAOS install completed"
 exit 0
