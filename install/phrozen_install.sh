@@ -10,6 +10,7 @@ set -u
 
 TARGET_DIR="/home/mks/klipper/klippy/extras/phrozen_dev"
 CONFIG_DIR="/home/mks/printer_data/config"
+INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
 
 log() {
@@ -34,27 +35,11 @@ backup_file() {
     fi
 }
 
-# Work out where the update package actually landed.
-# The Phrozen updater may stage the package differently depending on firmware/model.
+# Use the directory containing this installer as the source package directory.
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd)
-SOURCE_DIR=""
+SOURCE_DIR="$SCRIPT_DIR"
 
-for candidate in \
-    "$SCRIPT_DIR" \
-    "/tmp/phrozen_dev" \
-    "/tmp/update/phrozen_dev" \
-    "/tmp/update" \
-    "/home/mks/phrozen_dev" \
-    "/home/mks/update/phrozen_dev" \
-    "/home/mks/update"
-do
-    if [ -n "$candidate" ] && [ -f "$candidate/dev.py" ]; then
-        SOURCE_DIR="$candidate"
-        break
-    fi
-done
-
-[ -n "$SOURCE_DIR" ] || fail "Could not find source package directory containing dev.py"
+[ -f "$SOURCE_DIR/dev.py" ] || fail "Could not find source package directory containing dev.py: $SOURCE_DIR"
 
 log "script started"
 log "running as user: $(whoami 2>/dev/null || echo unknown)"
@@ -92,11 +77,20 @@ rm -f "$CONFIG_DIR/.kaos_write_test" || fail "Cannot remove write-test file from
 mkdir -p "$CONFIG_DIR/.kaos_mkdir_test" || fail "Cannot create directories in config directory: $CONFIG_DIR"
 rmdir "$CONFIG_DIR/.kaos_mkdir_test" || fail "Cannot remove mkdir-test directory from: $CONFIG_DIR"
 
-# Breadcrumb file so we can prove this script actually ran.
-echo "KAOS install started at $(date)" > "$CONFIG_DIR/kaos_install_ran.txt" || fail "Could not write breadcrumb file"
-echo "SOURCE_DIR=$SOURCE_DIR" >> "$CONFIG_DIR/kaos_install_ran.txt"
-echo "TARGET_DIR=$TARGET_DIR" >> "$CONFIG_DIR/kaos_install_ran.txt"
-echo "CONFIG_DIR=$CONFIG_DIR" >> "$CONFIG_DIR/kaos_install_ran.txt"
+# Install log so we can prove this script actually ran and preserve live values before replacement.
+existing_fila_cut_x_pos="NOT_FOUND"
+if [ -f "$CONFIG_DIR/printer.cfg" ]; then
+    # Use the same grep pattern proven over SSH, then strip the key/comments/whitespace.
+    existing_fila_cut_x_pos=$(grep -m 1 -E '^[[:space:]]*fila_cut_x_pos[[:space:]]*:' "$CONFIG_DIR/printer.cfg"         | sed -E 's/^[[:space:]]*fila_cut_x_pos[[:space:]]*:[[:space:]]*//; s/[[:space:]]*[#;].*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')
+    [ -n "$existing_fila_cut_x_pos" ] || existing_fila_cut_x_pos="NOT_FOUND"
+fi
+
+{
+    echo "KAOS install started at $(date)"
+    echo "SOURCE_DIR=$SOURCE_DIR"
+    echo "TARGET_DIR=$TARGET_DIR"
+    echo "CONFIG_DIR=$CONFIG_DIR"
+} > "$INSTALL_LOG" || fail "Could not write install log"
 
 # Backup existing files without removing working copies first.
 backup_file "$TARGET_DIR/dev.py"
@@ -146,7 +140,7 @@ chmod 644 "$CONFIG_DIR"/kaos/*.cfg || fail "chmod failed for split KAOS cfg file
 chmod 644 "$CONFIG_DIR/kaos.cfg" || fail "chmod failed for kaos.cfg"
 chmod 644 "$CONFIG_DIR/printer.cfg" || fail "chmod failed for printer.cfg"
 chmod 644 "$CONFIG_DIR/printer_gcode_macro.cfg" || fail "chmod failed for printer_gcode_macro.cfg"
-chmod 644 "$CONFIG_DIR/kaos_install_ran.txt" || fail "chmod failed for breadcrumb file"
+chmod 644 "$INSTALL_LOG" || fail "chmod failed for install log"
 
 # Verify installed result.
 log "verifying install"
@@ -172,7 +166,9 @@ log "installed $lang_count language py files"
     echo "KAOS install completed at $(date)"
     echo "cfg_count=$cfg_count"
     echo "lang_count=$lang_count"
-} >> "$CONFIG_DIR/kaos_install_ran.txt"
+    echo ""
+    echo "existing_fila_cut_x_pos=$existing_fila_cut_x_pos"
+} >> "$INSTALL_LOG"
 
 log "KAOS_INSTALL_SUCCESS: KAOS install completed"
 exit 0
