@@ -246,9 +246,9 @@ git push origin 1.9.9-k0.9.5
 
 GitLab CI runs (in order):
 
-1. `verify` — `tests/verify.sh` (audit + behavioral diff suite). Auto-runs.
-2. `build_release_zip` — validates the tag format, runs `tools/build_release.sh`, attaches the zip as a CI artifact. **Currently `when: manual`** — appears as a "play" button in the GitLab pipeline UI on tag pipelines; click to trigger. This gate exists while the on-printer file-layout assumption is unverified, so an accidental tag does not auto-publish a possibly-wrong-format zip to the public Releases page. Once a build has been validated on hardware, edit `.gitlab-ci.yml` and remove the `when: manual` line on `build_release_zip` to enable fully automatic releases.
-3. `release` — creates a GitLab [Release](https://gitlab.com/sanders.chris/phrozenarco/-/releases) page for the tag with the zip linked as a downloadable asset. Runs automatically after `build_release_zip` succeeds.
+1. `verify` — `tests/verify.sh` (audit + behavioral diff suite)
+2. `build_release_zip` — validates the tag format, runs `tools/build_release.sh`, attaches the zip as a CI artifact
+3. `release` — creates a GitLab [Release](https://gitlab.com/sanders.chris/phrozenarco/-/releases) page for the tag with the zip linked as a downloadable asset
 
 ### Building locally
 
