@@ -221,29 +221,51 @@ Pre-built release zips are attached to each GitLab tag (see [Releases](https://g
 
 ---
 
-## Building a Release Locally
+## Releases
 
-The release zip is built by `tools/build_release.sh`:
+### Tag format
+
+Release tags must use the format **`<kaos>-f<firmware>`**, where the firmware portion is dotted-numeric. The firmware suffix is mandatory: every release explicitly names the Phrozen firmware version it targets and requires.
+
+Examples:
+
+| Tag                 | KAOS version | Firmware target | Zip filename                          |
+|---------------------|--------------|-----------------|---------------------------------------|
+| `0.9.5-f1.9.9`      | 0.9.5        | 1.9.9           | `Arco_FW_V199_KAOS_0.9.5.zip`         |
+| `1.0.0-rc1-f1.9.9`  | 1.0.0-rc1    | 1.9.9           | `Arco_FW_V199_KAOS_1.0.0-rc1.zip`     |
+| `0.10-f2.0.0`       | 0.10         | 2.0.0           | `Arco_FW_V200_KAOS_0.10.zip`          |
+
+CI rejects any tag that does not match this format — the build job fails with a clear error before producing anything.
+
+### CI release on tag push
 
 ```bash
-# Auto-version from `git describe`
+git tag 0.9.5-f1.9.9
+git push origin 0.9.5-f1.9.9
+```
+
+GitLab CI runs (in order):
+
+1. `verify` — `tests/verify.sh` (audit + behavioral diff suite)
+2. `build_release_zip` — validates the tag format, runs `tools/build_release.sh`, attaches the zip as a CI artifact
+3. `release` — creates a GitLab [Release](https://gitlab.com/sanders.chris/phrozenarco/-/releases) page for the tag with the zip linked as a downloadable asset
+
+### Building locally
+
+`tools/build_release.sh` accepts the same tag format, plus a two-arg manual mode for iterating without tagging:
+
+```bash
+# Auto from `git describe --tags` (must match the tag format)
 tools/build_release.sh
 
-# Or pin the KAOS version explicitly (and optionally the firmware target)
-tools/build_release.sh 0.95          # → dist/Arco_FW_V199_KAOS_0.95.zip
-tools/build_release.sh v1.0  1.9.9   # → dist/Arco_FW_V199_KAOS_1.0.zip
+# From an explicit tag
+tools/build_release.sh 0.9.5-f1.9.9
+
+# Manual mode (skips tag-format validation; for local dev iteration)
+tools/build_release.sh 0.9.5 1.9.9
 ```
 
 The script flattens `config/` and `phrozen_dev/` into the layout the on-printer install script expects, drops in `install/phrozen_install*.sh`, stamps `KAOS_VERSION.txt` with build metadata, and zips it to `dist/`.
-
-CI builds happen automatically on tag push (see `.gitlab-ci.yml`). Tag a release with:
-
-```bash
-git tag v0.95
-git push origin v0.95
-```
-
-The verify suite runs first; on success, the build job produces the zip and the release job creates a GitLab Release page with the zip attached.
 
 ---
 

@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 # Build a KAOS release zip in Phrozen's USB-update layout.
 #
+# Tag / version format:
+#   <kaos>-f<firmware>     e.g. 0.9.5-f1.9.9, 1.0.0-rc1-f1.9.9
+#
+# The combined tag bakes the firmware version into the release: a release
+# is an explicit promise that this KAOS build targets and requires the
+# named firmware. CI rejects tags that don't match this format.
+#
 # Usage:
-#   tools/build_release.sh                          # auto-version from git
-#   tools/build_release.sh <kaos_version>           # explicit KAOS version
-#   tools/build_release.sh <kaos_version> <fw_ver>  # override firmware target
+#   tools/build_release.sh                                # auto from `git describe --tags`
+#   tools/build_release.sh <tag>                          # parse <kaos>-f<firmware>
+#   tools/build_release.sh <kaos> <fw>                    # explicit (manual override)
 #
 # Examples:
-#   tools/build_release.sh                          # → Arco_FW_V199_KAOS_<git-describe>.zip
-#   tools/build_release.sh 0.95                     # → Arco_FW_V199_KAOS_0.95.zip
-#   tools/build_release.sh v1.0 1.9.9               # → Arco_FW_V199_KAOS_1.0.zip
+#   tools/build_release.sh                                # uses latest tag
+#   tools/build_release.sh 0.9.5-f1.9.9                   # → KAOS=0.9.5, FW=1.9.9
+#   tools/build_release.sh 0.9.5 1.9.9                    # explicit, skips tag-format check
 #
 # Output: dist/Arco_FW_V<fw_no_dots>_KAOS_<kaos>.zip
-#
-# Layout inside the zip:
-#   Arco_FW_V<fw>_KAOS_<kaos>/
-#   └── phrozen_dev/
-#       ├── dev.py, kaos_logging.py, kaos_translations.py
-#       ├── lang/*.py
-#       ├── kaos.cfg, printer.cfg, printer_gcode_macro.cfg
-#       ├── kaos/*.cfg
-#       └── phrozen_install*.sh
-#
-# To install: unzip on a PC, copy the inner phrozen_dev/ folder to a USB stick
-# root, plug into the printer, run the Phrozen update flow.
+# Inside: Arco_FW_V<fw_no_dots>_KAOS_<kaos>/phrozen_dev/<flat install layout>
 
 set -euo pipefail
 
@@ -33,15 +29,71 @@ if [ -z "$REPO_ROOT" ]; then
 fi
 cd "$REPO_ROOT"
 
-KAOS_VERSION_RAW="${1:-$(git describe --tags --always --dirty 2>/dev/null || echo "dev")}"
-FW_VERSION_RAW="${2:-1.9.9}"
 OUTPUT_DIR="${OUTPUT_DIR:-dist}"
 
-# Normalize: strip leading 'v', strip dots from firmware version (1.9.9 → 199).
-KAOS_VERSION="${KAOS_VERSION_RAW#v}"
-FW_VERSION="${FW_VERSION_RAW#v}"
-FW_VERSION_NODOTS="${FW_VERSION//./}"
+# parse_release_tag <tag>
+# Strict format: <kaos>-f<firmware>, where firmware is dotted-numeric.
+# Sets PARSED_KAOS_VERSION + PARSED_FW_VERSION on success, returns 1 on
+# failure (with no side effect).
+parse_release_tag() {
+    local tag="$1"
+    if [[ ! "$tag" =~ ^(.+)-f([0-9]+(\.[0-9]+)*)$ ]]; then
+        return 1
+    fi
+    PARSED_KAOS_VERSION="${BASH_REMATCH[1]}"
+    PARSED_FW_VERSION="${BASH_REMATCH[2]}"
+    return 0
+}
 
+fail_tag_format() {
+    cat >&2 <<EOF
+ERROR: release tag '$1' does not match the required format.
+
+Required format:  <kaos>-f<firmware>
+Examples:         0.9.5-f1.9.9      1.0.0-rc1-f1.9.9      0.10-f2.0.0
+
+The firmware portion (after '-f') must be a dotted numeric string.
+The KAOS portion may contain dots, letters, and hyphens.
+
+Tag the release like:
+    git tag 0.9.5-f1.9.9
+    git push origin 0.9.5-f1.9.9
+EOF
+    exit 2
+}
+
+case "$#" in
+    0)
+        # Auto-derive from git. Must match the tag format.
+        DESC="$(git describe --tags --always --dirty 2>/dev/null || echo "")"
+        [ -n "$DESC" ] || { echo "ERROR: no git tag found and no version arg passed" >&2; exit 2; }
+        if ! parse_release_tag "$DESC"; then
+            fail_tag_format "$DESC"
+        fi
+        KAOS_VERSION="$PARSED_KAOS_VERSION"
+        FW_VERSION="$PARSED_FW_VERSION"
+        ;;
+    1)
+        # Single arg: must match the tag format.
+        if ! parse_release_tag "$1"; then
+            fail_tag_format "$1"
+        fi
+        KAOS_VERSION="$PARSED_KAOS_VERSION"
+        FW_VERSION="$PARSED_FW_VERSION"
+        ;;
+    2)
+        # Two args: explicit manual override (skips tag-format validation).
+        # Useful for local builds where the user is iterating without tagging.
+        KAOS_VERSION="$1"
+        FW_VERSION="$2"
+        ;;
+    *)
+        echo "ERROR: too many arguments. Pass either <tag> or <kaos> <fw>." >&2
+        exit 2
+        ;;
+esac
+
+FW_VERSION_NODOTS="${FW_VERSION//./}"
 PACKAGE_NAME="Arco_FW_V${FW_VERSION_NODOTS}_KAOS_${KAOS_VERSION}"
 STAGE_DIR="$(mktemp -d -t kaos-build.XXXXXX)"
 trap 'rm -rf "$STAGE_DIR"' EXIT
@@ -50,7 +102,9 @@ PKG_ROOT="$STAGE_DIR/$PACKAGE_NAME"
 PHROZEN_DEV="$PKG_ROOT/phrozen_dev"
 mkdir -p "$PHROZEN_DEV/kaos" "$PHROZEN_DEV/lang"
 
-echo ">> Staging package: $PACKAGE_NAME"
+echo ">> KAOS version:    $KAOS_VERSION"
+echo ">> Target firmware: $FW_VERSION"
+echo ">> Package:         $PACKAGE_NAME"
 
 # Python module + language files
 cp phrozen_dev/dev.py phrozen_dev/kaos_logging.py phrozen_dev/kaos_translations.py "$PHROZEN_DEV/"
@@ -66,11 +120,12 @@ cp config/kaos/*.cfg "$PHROZEN_DEV/kaos/"
 cp install/phrozen_install*.sh "$PHROZEN_DEV/"
 chmod +x "$PHROZEN_DEV"/phrozen_install*.sh
 
-# Version stamp file (sits next to the install scripts; readable on the printer
-# after install via cat /tmp/phrozen_dev/KAOS_VERSION.txt or similar).
+# Version stamp file. Recorded both as the parsed parts and the original tag
+# form so anyone reading it on the printer can see exactly what shipped.
 cat > "$PHROZEN_DEV/KAOS_VERSION.txt" <<EOF
 KAOS version:        ${KAOS_VERSION}
 Target firmware:     ${FW_VERSION}
+Release tag:         ${KAOS_VERSION}-f${FW_VERSION}
 Built (UTC):         $(date -u +%Y-%m-%dT%H:%M:%SZ)
 Git revision:        $(git describe --tags --always --dirty 2>/dev/null || echo "unknown")
 Git branch:          $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
