@@ -19,13 +19,20 @@
 #   git tag 1.9.9-k0.9.5
 #   git push origin 1.9.9-k0.9.5
 
+# Pipeline only runs on tag pushes — branch pushes don't trigger CI.
+# Local testing (bash tests/verify.sh, tools/build_release.sh) covers
+# day-to-day work; CI is the release gate.
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+
 stages:
   - test
   - build
   - release
 
 # ---------------------------------------------------------------------------
-# Test: run on every push to a branch and on every tag.
+# Test: tests/verify.sh (audit + behavioral diff suite).
 # Needs git for `git ls-files` (audit traverses the repo) and jinja2 for
 # the render_macros module that diff_branches imports.
 # ---------------------------------------------------------------------------
@@ -37,9 +44,6 @@ verify:
     - pip install --no-cache-dir jinja2
   script:
     - bash tests/verify.sh
-  rules:
-    - if: $CI_COMMIT_TAG
-    - if: $CI_COMMIT_BRANCH
 
 # ---------------------------------------------------------------------------
 # Build: produce the release zip; only on tag pushes that match the format.
@@ -79,8 +83,6 @@ build_release_zip:
     reports:
       dotenv: build.env
     expire_in: never
-  rules:
-    - if: $CI_COMMIT_TAG
 
 # ---------------------------------------------------------------------------
 # Release: create a GitLab Release for the tag and attach the zip from the
@@ -92,8 +94,6 @@ release:
   needs:
     - job: build_release_zip
       artifacts: true
-  rules:
-    - if: $CI_COMMIT_TAG
   script:
     - echo "Releasing $CI_COMMIT_TAG → $ZIP_NAME (KAOS $KAOS_VERSION, firmware $FW_VERSION)"
   release:
