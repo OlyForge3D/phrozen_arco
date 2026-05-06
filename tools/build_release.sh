@@ -2,24 +2,27 @@
 # Build a KAOS release zip in Phrozen's USB-update layout.
 #
 # Tag / version format:
-#   <kaos>-f<firmware>     e.g. 0.9.5-f1.9.9, 1.0.0-rc1-f1.9.9
+#   <firmware>-k<kaos>     e.g. 1.9.9-k0.9.5, 1.9.9-k1.0.0-rc1
 #
-# The combined tag bakes the firmware version into the release: a release
-# is an explicit promise that this KAOS build targets and requires the
-# named firmware. CI rejects tags that don't match this format.
+# Order mirrors the output zip filename Arco_FW_V<fw>_KAOS_<kaos>.zip —
+# firmware first, then KAOS. The combined tag bakes the firmware version
+# into the release: a release is an explicit promise that this KAOS build
+# targets and requires the named firmware. CI rejects tags that don't
+# match this format.
 #
 # Usage:
 #   tools/build_release.sh                                # auto from `git describe --tags`
-#   tools/build_release.sh <tag>                          # parse <kaos>-f<firmware>
+#   tools/build_release.sh <tag>                          # parse <firmware>-k<kaos>
 #   tools/build_release.sh <kaos> <fw>                    # explicit (manual override)
 #
 # Examples:
 #   tools/build_release.sh                                # uses latest tag
-#   tools/build_release.sh 0.9.5-f1.9.9                   # → KAOS=0.9.5, FW=1.9.9
+#   tools/build_release.sh 1.9.9-k0.9.5                   # → KAOS=0.9.5, FW=1.9.9
 #   tools/build_release.sh 0.9.5 1.9.9                    # explicit, skips tag-format check
 #
 # Output: dist/Arco_FW_V<fw_no_dots>_KAOS_<kaos>.zip
-# Inside: Arco_FW_V<fw_no_dots>_KAOS_<kaos>/phrozen_dev/<flat install layout>
+# Inside: phrozen_dev/<flat install layout> (matches the unzipped folder
+#         the on-printer install flow expects on a USB stick root)
 
 set -euo pipefail
 
@@ -32,16 +35,16 @@ cd "$REPO_ROOT"
 OUTPUT_DIR="${OUTPUT_DIR:-dist}"
 
 # parse_release_tag <tag>
-# Strict format: <kaos>-f<firmware>, where firmware is dotted-numeric.
-# Sets PARSED_KAOS_VERSION + PARSED_FW_VERSION on success, returns 1 on
+# Strict format: <firmware>-k<kaos>, where firmware is dotted-numeric.
+# Sets PARSED_FW_VERSION + PARSED_KAOS_VERSION on success, returns 1 on
 # failure (with no side effect).
 parse_release_tag() {
     local tag="$1"
-    if [[ ! "$tag" =~ ^(.+)-f([0-9]+(\.[0-9]+)*)$ ]]; then
+    if [[ ! "$tag" =~ ^([0-9]+(\.[0-9]+)*)-k(.+)$ ]]; then
         return 1
     fi
-    PARSED_KAOS_VERSION="${BASH_REMATCH[1]}"
-    PARSED_FW_VERSION="${BASH_REMATCH[2]}"
+    PARSED_FW_VERSION="${BASH_REMATCH[1]}"
+    PARSED_KAOS_VERSION="${BASH_REMATCH[3]}"
     return 0
 }
 
@@ -49,15 +52,15 @@ fail_tag_format() {
     cat >&2 <<EOF
 ERROR: release tag '$1' does not match the required format.
 
-Required format:  <kaos>-f<firmware>
-Examples:         0.9.5-f1.9.9      1.0.0-rc1-f1.9.9      0.10-f2.0.0
+Required format:  <firmware>-k<kaos>
+Examples:         1.9.9-k0.9.5      1.9.9-k1.0.0-rc1      2.0.0-k0.10
 
-The firmware portion (after '-f') must be a dotted numeric string.
+The firmware portion (before '-k') must be a dotted numeric string.
 The KAOS portion may contain dots, letters, and hyphens.
 
 Tag the release like:
-    git tag 0.9.5-f1.9.9
-    git push origin 0.9.5-f1.9.9
+    git tag 1.9.9-k0.9.5
+    git push origin 1.9.9-k0.9.5
 EOF
     exit 2
 }
@@ -98,8 +101,10 @@ PACKAGE_NAME="Arco_FW_V${FW_VERSION_NODOTS}_KAOS_${KAOS_VERSION}"
 STAGE_DIR="$(mktemp -d -t kaos-build.XXXXXX)"
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
-PKG_ROOT="$STAGE_DIR/$PACKAGE_NAME"
-PHROZEN_DEV="$PKG_ROOT/phrozen_dev"
+# Stage layout: phrozen_dev/ at the zip root with all install files flattened
+# inside. No outer wrapper folder — the user puts this phrozen_dev/ folder
+# directly on a USB stick root and the printer runs the install from there.
+PHROZEN_DEV="$STAGE_DIR/phrozen_dev"
 mkdir -p "$PHROZEN_DEV/kaos" "$PHROZEN_DEV/lang"
 
 echo ">> KAOS version:    $KAOS_VERSION"
@@ -125,7 +130,7 @@ chmod +x "$PHROZEN_DEV"/phrozen_install*.sh
 cat > "$PHROZEN_DEV/KAOS_VERSION.txt" <<EOF
 KAOS version:        ${KAOS_VERSION}
 Target firmware:     ${FW_VERSION}
-Release tag:         ${KAOS_VERSION}-f${FW_VERSION}
+Release tag:         ${FW_VERSION}-k${KAOS_VERSION}
 Built (UTC):         $(date -u +%Y-%m-%dT%H:%M:%SZ)
 Git revision:        $(git describe --tags --always --dirty 2>/dev/null || echo "unknown")
 Git branch:          $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
@@ -135,15 +140,18 @@ EOF
 # dependency on minimal CI images).
 mkdir -p "$OUTPUT_DIR"
 ZIP_PATH="$REPO_ROOT/$OUTPUT_DIR/${PACKAGE_NAME}.zip"
-python3 - "$STAGE_DIR" "$PACKAGE_NAME" "$ZIP_PATH" <<'PY'
+python3 - "$STAGE_DIR" "$ZIP_PATH" <<'PY'
 import os, sys, zipfile
-stage_dir, pkg_name, out_path = sys.argv[1], sys.argv[2], sys.argv[3]
-src_root = os.path.join(stage_dir, pkg_name)
+stage_dir, out_path = sys.argv[1], sys.argv[2]
+src_root = os.path.join(stage_dir, "phrozen_dev")
 with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as z:
-    for dirpath, _, filenames in os.walk(src_root):
+    for dirpath, dirnames, filenames in os.walk(src_root):
+        # Explicit directory entries (mirrors what the reference sample has).
+        rel = os.path.relpath(dirpath, stage_dir)
+        z.writestr(rel.replace(os.sep, "/") + "/", "")
         for f in sorted(filenames):
             full = os.path.join(dirpath, f)
-            arc = os.path.relpath(full, stage_dir)
+            arc = os.path.relpath(full, stage_dir).replace(os.sep, "/")
             z.write(full, arc)
 PY
 

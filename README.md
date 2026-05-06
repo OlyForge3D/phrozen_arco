@@ -225,23 +225,23 @@ Pre-built release zips are attached to each GitLab tag (see [Releases](https://g
 
 ### Tag format
 
-Release tags must use the format **`<kaos>-f<firmware>`**, where the firmware portion is dotted-numeric. The firmware suffix is mandatory: every release explicitly names the Phrozen firmware version it targets and requires.
+Release tags must use the format **`<firmware>-k<kaos>`**, where the firmware portion is dotted-numeric. The firmware-prefix is mandatory: every release explicitly names the Phrozen firmware version it targets and requires. Order mirrors the output zip filename (firmware first, then KAOS).
 
 Examples:
 
-| Tag                 | KAOS version | Firmware target | Zip filename                          |
-|---------------------|--------------|-----------------|---------------------------------------|
-| `0.9.5-f1.9.9`      | 0.9.5        | 1.9.9           | `Arco_FW_V199_KAOS_0.9.5.zip`         |
-| `1.0.0-rc1-f1.9.9`  | 1.0.0-rc1    | 1.9.9           | `Arco_FW_V199_KAOS_1.0.0-rc1.zip`     |
-| `0.10-f2.0.0`       | 0.10         | 2.0.0           | `Arco_FW_V200_KAOS_0.10.zip`          |
+| Tag                 | Firmware target | KAOS version | Zip filename                          |
+|---------------------|-----------------|--------------|---------------------------------------|
+| `1.9.9-k0.9.5`      | 1.9.9           | 0.9.5        | `Arco_FW_V199_KAOS_0.9.5.zip`         |
+| `1.9.9-k1.0.0-rc1`  | 1.9.9           | 1.0.0-rc1    | `Arco_FW_V199_KAOS_1.0.0-rc1.zip`     |
+| `2.0.0-k0.10`       | 2.0.0           | 0.10         | `Arco_FW_V200_KAOS_0.10.zip`          |
 
 CI rejects any tag that does not match this format — the build job fails with a clear error before producing anything.
 
 ### CI release on tag push
 
 ```bash
-git tag 0.9.5-f1.9.9
-git push origin 0.9.5-f1.9.9
+git tag 1.9.9-k0.9.5
+git push origin 1.9.9-k0.9.5
 ```
 
 GitLab CI runs (in order):
@@ -259,7 +259,7 @@ GitLab CI runs (in order):
 tools/build_release.sh
 
 # From an explicit tag
-tools/build_release.sh 0.9.5-f1.9.9
+tools/build_release.sh 1.9.9-k0.9.5
 
 # Manual mode (skips tag-format validation; for local dev iteration)
 tools/build_release.sh 0.9.5 1.9.9

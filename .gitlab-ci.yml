@@ -7,16 +7,17 @@
 #                    attached as a downloadable asset
 #
 # Tag format (REQUIRED for release pipelines):
-#   <kaos>-f<firmware>     where firmware is dotted-numeric
-#   Examples:              0.9.5-f1.9.9, 1.0.0-rc1-f1.9.9, 0.10-f2.0.0
+#   <firmware>-k<kaos>     where firmware is dotted-numeric
+#   Examples:              1.9.9-k0.9.5, 1.9.9-k1.0.0-rc1, 2.0.0-k0.10
 #
-# The firmware-suffix is mandatory: each release explicitly names which
-# Phrozen firmware version it targets. CI rejects any tag that does not
-# match this format.
+# Order mirrors the output zip filename Arco_FW_V<fw>_KAOS_<kaos>.zip —
+# firmware first, then KAOS. The firmware-prefix is mandatory: each release
+# explicitly names which Phrozen firmware version it targets. CI rejects
+# any tag that does not match this format.
 #
 # Tag a release like:
-#   git tag 0.9.5-f1.9.9
-#   git push origin 0.9.5-f1.9.9
+#   git tag 1.9.9-k0.9.5
+#   git push origin 1.9.9-k0.9.5
 
 stages:
   - test
@@ -65,12 +66,12 @@ build_release_zip:
     # Re-derive KAOS version + zip name for dotenv so release job has them.
     # Same regex as build_release.sh's parse_release_tag.
     - |
-      if [[ ! "$CI_COMMIT_TAG" =~ ^(.+)-f([0-9]+(\.[0-9]+)*)$ ]]; then
+      if [[ ! "$CI_COMMIT_TAG" =~ ^([0-9]+(\.[0-9]+)*)-k(.+)$ ]]; then
         echo "Tag $CI_COMMIT_TAG should have failed earlier; refusing to release"
         exit 2
       fi
-      KAOS_VERSION="${BASH_REMATCH[1]}"
-      FW_VERSION="${BASH_REMATCH[2]}"
+      FW_VERSION="${BASH_REMATCH[1]}"
+      KAOS_VERSION="${BASH_REMATCH[3]}"
       FW_VERSION_NODOTS="${FW_VERSION//./}"
       ZIP_NAME="Arco_FW_V${FW_VERSION_NODOTS}_KAOS_${KAOS_VERSION}.zip"
       test -f "dist/$ZIP_NAME" || (echo "Expected dist/$ZIP_NAME not found:" && ls -la dist/ && exit 1)
