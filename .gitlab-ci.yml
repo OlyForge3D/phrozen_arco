@@ -19,12 +19,14 @@
 #   git tag 1.9.9-k0.9.5
 #   git push origin 1.9.9-k0.9.5
 
-# Pipeline only runs on tag pushes — branch pushes don't trigger CI.
+# Pipeline only runs on tag pushes that match <firmware>-k<kaos>.
+# Branch pushes and malformed tags don't trigger CI at all.
+# v/V prefix on either portion is rejected (use 0.9.5 not v0.9.5).
 # Local testing (bash tests/verify.sh, tools/build_release.sh) covers
 # day-to-day work; CI is the release gate.
 workflow:
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+(\.[0-9]+)*-k[^vV].*$/'
 
 stages:
   - test
@@ -61,7 +63,7 @@ build_release_zip:
     # error if it does not match <kaos>-f<firmware>.
     - bash tools/build_release.sh "$CI_COMMIT_TAG"
     # Re-derive KAOS version + zip name for dotenv so release job has them.
-    # Same regex as build_release.sh's parse_release_tag.
+    # Same regex + v-prefix rejection as build_release.sh's parse_release_tag.
     - |
       if [[ ! "$CI_COMMIT_TAG" =~ ^([0-9]+(\.[0-9]+)*)-k(.+)$ ]]; then
         echo "Tag $CI_COMMIT_TAG should have failed earlier; refusing to release"
@@ -69,6 +71,10 @@ build_release_zip:
       fi
       FW_VERSION="${BASH_REMATCH[1]}"
       KAOS_VERSION="${BASH_REMATCH[3]}"
+      if [[ "$KAOS_VERSION" =~ ^[vV] ]]; then
+        echo "Tag $CI_COMMIT_TAG has v/V prefix on KAOS portion; refusing to release"
+        exit 2
+      fi
       FW_VERSION_NODOTS="${FW_VERSION//./}"
       ZIP_NAME="Arco_FW_V${FW_VERSION_NODOTS}_KAOS_${KAOS_VERSION}.zip"
       test -f "dist/$ZIP_NAME" || (echo "Expected dist/$ZIP_NAME not found:" && ls -la dist/ && exit 1)

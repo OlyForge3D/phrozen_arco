@@ -38,13 +38,21 @@ OUTPUT_DIR="${OUTPUT_DIR:-dist}"
 # Strict format: <firmware>-k<kaos>, where firmware is dotted-numeric.
 # Sets PARSED_FW_VERSION + PARSED_KAOS_VERSION on success, returns 1 on
 # failure (with no side effect).
+#
+# v/V prefixes are explicitly rejected on both portions. Use plain numeric
+# versions: 0.9.5 not v0.9.5, 1.9.9 not V1.9.9.
 parse_release_tag() {
     local tag="$1"
     if [[ ! "$tag" =~ ^([0-9]+(\.[0-9]+)*)-k(.+)$ ]]; then
         return 1
     fi
-    PARSED_FW_VERSION="${BASH_REMATCH[1]}"
-    PARSED_KAOS_VERSION="${BASH_REMATCH[3]}"
+    local fw="${BASH_REMATCH[1]}"
+    local kaos="${BASH_REMATCH[3]}"
+    if [[ "$kaos" =~ ^[vV] ]]; then
+        return 1
+    fi
+    PARSED_FW_VERSION="$fw"
+    PARSED_KAOS_VERSION="$kaos"
     return 0
 }
 
@@ -55,8 +63,10 @@ ERROR: release tag '$1' does not match the required format.
 Required format:  <firmware>-k<kaos>
 Examples:         1.9.9-k0.9.5      1.9.9-k1.0.0-rc1      2.0.0-k0.10
 
-The firmware portion (before '-k') must be a dotted numeric string.
-The KAOS portion may contain dots, letters, and hyphens.
+Rules:
+  - firmware portion (before '-k') must be a dotted numeric string
+  - KAOS portion may contain dots, letters, hyphens
+  - NO 'v' or 'V' prefix on either portion (use 0.9.5, NOT v0.9.5)
 
 Tag the release like:
     git tag 1.9.9-k0.9.5
