@@ -21,8 +21,17 @@
 #   tools/build_release.sh 0.9.5 1.9.9                    # explicit, skips tag-format check
 #
 # Output: dist/Arco_FW_V<fw_no_dots>_KAOS_<kaos>.zip
-# Inside: phrozen_dev/<flat install layout> (matches the unzipped folder
-#         the on-printer install flow expects on a USB stick root)
+#
+# Layout (nested zip — required by the Phrozen updater):
+#   <PACKAGE>.zip                       outer (distribution wrapper)
+#   └── phrozen_dev/
+#       └── phrozen_dev.zip             inner (what the updater looks for)
+#           └── phrozen_dev/             (folder inside the inner zip)
+#               └── <flat install layout>   (dev.py, kaos.cfg, kaos/*.cfg, etc.)
+#
+# The user unzips the outer, copies the resulting phrozen_dev/ folder
+# (which contains phrozen_dev.zip) to a USB stick root, plugs it in,
+# and the Phrozen updater finds phrozen_dev/phrozen_dev.zip and applies it.
 
 set -euo pipefail
 
@@ -146,11 +155,11 @@ Git revision:        $(git describe --tags --always --dirty 2>/dev/null || echo 
 Git branch:          $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 EOF
 
-# Build the zip via Python's zipfile module (avoids the `zip` binary
-# dependency on minimal CI images).
-mkdir -p "$OUTPUT_DIR"
-ZIP_PATH="$REPO_ROOT/$OUTPUT_DIR/${PACKAGE_NAME}.zip"
-python3 - "$STAGE_DIR" "$ZIP_PATH" <<'PY'
+# Step 1: build the INNER zip (phrozen_dev.zip).
+# Contains phrozen_dev/<flat install layout>. This is the zip the Phrozen
+# updater unpacks on the printer to apply the update.
+INNER_ZIP="$STAGE_DIR/phrozen_dev.zip"
+python3 - "$STAGE_DIR" "$INNER_ZIP" <<'PY'
 import os, sys, zipfile
 stage_dir, out_path = sys.argv[1], sys.argv[2]
 src_root = os.path.join(stage_dir, "phrozen_dev")
@@ -165,8 +174,38 @@ with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as z:
             z.write(full, arc)
 PY
 
+# Step 2: build the OUTER zip — the distribution wrapper.
+# Contains phrozen_dev/phrozen_dev.zip (the inner zip from step 1, inside a
+# phrozen_dev/ folder). When the user unzips this they get a phrozen_dev/
+# folder ready to drop on a USB stick.
+OUTER_STAGE="$STAGE_DIR/_outer"
+mkdir -p "$OUTER_STAGE/phrozen_dev"
+mv "$INNER_ZIP" "$OUTER_STAGE/phrozen_dev/phrozen_dev.zip"
+
+mkdir -p "$OUTPUT_DIR"
+ZIP_PATH="$REPO_ROOT/$OUTPUT_DIR/${PACKAGE_NAME}.zip"
+python3 - "$OUTER_STAGE" "$ZIP_PATH" <<'PY'
+import os, sys, zipfile
+stage_dir, out_path = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as z:
+    z.writestr("phrozen_dev/", "")
+    z.write(os.path.join(stage_dir, "phrozen_dev", "phrozen_dev.zip"),
+            "phrozen_dev/phrozen_dev.zip")
+PY
+
 echo ">> Built: $ZIP_PATH"
 ls -la "$ZIP_PATH"
 echo
-echo ">> Contents:"
+echo ">> Outer contents:"
 python3 -m zipfile -l "$ZIP_PATH"
+echo
+echo ">> Inner contents (phrozen_dev/phrozen_dev.zip):"
+python3 - "$ZIP_PATH" <<'PY'
+import sys, zipfile, io
+with zipfile.ZipFile(sys.argv[1]) as outer:
+    with outer.open("phrozen_dev/phrozen_dev.zip") as f:
+        data = f.read()
+with zipfile.ZipFile(io.BytesIO(data)) as inner:
+    for i in inner.infolist():
+        print(f"  {i.file_size:>8}  {i.filename}")
+PY

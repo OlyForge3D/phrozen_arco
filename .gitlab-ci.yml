@@ -121,9 +121,10 @@ release:
 
       ## Install
       1. Download the zip below
-      2. Unzip and copy the inner phrozen_dev/ folder to a USB stick root
-      3. Plug into the printer and run the Phrozen update flow
-      4. After install, full power-cycle the printer (a Klipper-only restart is not enough; Python modules need a fresh load)
+      2. Unzip on a PC; you will see a phrozen_dev/ folder containing phrozen_dev.zip
+      3. Copy that whole phrozen_dev/ folder (with phrozen_dev.zip inside it) to a USB stick root
+      4. Plug into the printer and run the Phrozen update flow
+      5. After install, full power-cycle the printer (a Klipper-only restart is not enough; Python modules need a fresh load)
 
       Requires firmware **$FW_VERSION**. Installing on a different firmware version is not supported.
 

@@ -211,12 +211,12 @@ _KAOS_LOG
 
 KAOS is installed using a Phrozen-style USB update package.
 
-Pre-built release zips are attached to each GitLab tag (see [Releases](https://gitlab.com/sanders.chris/phrozenarco/-/releases)). To install:
+Pre-built release zips are attached to each GitLab tag (see [Releases](https://gitlab.com/sanders.chris/phrozenarco/-/releases)). The release uses Phrozen's nested-zip format: an outer distribution wrapper containing `phrozen_dev/phrozen_dev.zip` (the inner archive the printer's updater actually consumes). To install:
 
 1. Download `Arco_FW_V199_KAOS_<version>.zip`
-2. Unzip on a PC
-3. Copy the inner `phrozen_dev/` folder to a USB stick root
-4. Plug into the printer and run the Phrozen update flow
+2. Unzip on a PC — you'll see a `phrozen_dev/` folder containing `phrozen_dev.zip`
+3. Copy that whole `phrozen_dev/` folder (with `phrozen_dev.zip` inside it) to a USB stick root
+4. Plug into the printer and run the Phrozen update flow — the updater finds `phrozen_dev/phrozen_dev.zip` and unpacks it
 5. Full power-cycle the printer (Klipper-only restart isn't enough; Python modules need a fresh load)
 
 ---
