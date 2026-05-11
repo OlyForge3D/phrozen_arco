@@ -186,9 +186,14 @@ log "installed $lang_count language py files"
         echo "NOT_FOUND"
     fi
     echo "existing_save_config_block_end"
+    echo ""
+    echo "KAOS_INSTALL_SUCCESS: KAOS install completed"
+    echo ""
+    echo "Rebooting printer after KAOS install at $(date)"
 } >> "$INSTALL_LOG"
 
 rm -f "$SAVE_CONFIG_TMP"
 
-log "KAOS_INSTALL_SUCCESS: KAOS install completed"
-exit 0
+sync
+sleep 2
+reboot
