@@ -1,4 +1,4 @@
-# Phrozen Arco – KAOS Klipper Add-On System
+# Phrozen Arco – KAOS (Klipper Add-On System)
 
 ## Project Status
 
@@ -7,6 +7,14 @@ This is a development project for the Phrozen Arco running Klipper.
 KAOS modifies stock Phrozen Arco behavior. It is intended for advanced users who are comfortable with SSH, Klipper configuration files, firmware updates, and recovery from configuration errors.
 
 Use at your own risk. Keep backups of your working configuration before installing.
+
+---
+
+### Jump to
+- [Disclaimer](#disclaimer)
+- [Credits](#thankscredits)
+
+Download the latest version here: [Releases](https://gitlab.com/sanders.chris/phrozenarco/-/releases)
 
 ---
 
@@ -217,7 +225,7 @@ Pre-built release zips are attached to each GitLab tag (see [Releases](https://g
 2. Unzip on a PC — you'll see a `phrozen_dev/` folder containing `phrozen_dev.zip`
 3. Copy that whole `phrozen_dev/` folder (with `phrozen_dev.zip` inside it) to a USB stick root
 4. Plug into the printer and run the Phrozen update flow — the updater finds `phrozen_dev/phrozen_dev.zip` and unpacks it
-5. Full power-cycle the printer (Klipper-only restart isn't enough; Python modules need a fresh load)
+5. As of the latest verion, Arco should reboot automatically after install. If it does not, full power-cycle the printer (Klipper-only restart isn't enough; Python modules need a fresh load)
 
 ---
 
@@ -597,6 +605,12 @@ When possible, KAOS should prefer add-on files and lightweight hooks over large 
 
 ---
 
+## Thanks/Credits
+- Thanks to [solutionphil](https://github.com/solutionphil) for starting the original project [here](https://github.com/solutionphil/PhrozenArco):
+- Thanks to  thanks to [Jay Smith](https://www.facebook.com/jay.smith.122210/) and [Edwin Tan](https://www.facebook.com/ejtan1) for the lighting macros
+- Thanks to [Joost van der Linden](https://www.facebook.com/3DMadMesh) for the original Advanced Prime Line
+
+
 ## Disclaimer
 
 This project modifies stock Phrozen Arco Klipper behavior.
@@ -617,123 +631,3 @@ cmds.py
 ```
 
 No warranty is provided.
-
-
-
-
-
-
-
-OLD 
-
-
-
-
-# This is a DEV project
-# These instructions are incorrect
-
-# Phrozen Arco – Klipper Add-On System (KAOS)
-## Purpose
-
-This repository implements a centralized,  Klipper add-on system built around a single configuration file:
-addon.cfg
-
-The goal is to:
-- Provide one authoritative config file for enabling/disabling features
-- Avoid editing multiple .cfg files when tuning or experimenting
-- Allow clean inclusion or exclusion of optional mods
-- Make behavior predictable, debuggable, and reversible
-
-If a feature exists, it should be:
-- Declared
-- Enabled or disabled
-- Configured
-…from addon.cfg.
-
-## Instructions📑:
-Installation intructions can be found in the [config/README.md](config/README.md) file in the [config directory](config/)
-
-# Features/Functions
-
-
-## Configuration & Core Infrastructure
-Acts as a central settings area where you can turn features on or off and adjust how different parts of the system behave, all from one place.
-- `_USER_CONFIG` — central configuration / policy macro support  
-- Static include: `magic_ams_by_chris.cfg` — AMS / purge subsystem  
-
-## AMS / Multi-Material Control
-- `TOOLCHANGE` — tool-change setup; called by the slicer's Change-Filament G-code BEFORE Orca emits its own `T<n>`. Lifts Z (stays elevated through the rest of the tool change so the firmware's travel to chute clears tall print features), retracts old filament, stashes FLUSH/RETRACT/lifted in `_TOOLCHANGE_PENDING`. Does NOT fire `T<n>` (Orca does that automatically afterwards) and does NOT call `ORCA_PURGE` or lower Z — both deferred to `PRZ_SPITTING_END`.
-- `ORCA_PURGE` — color-transition purge. Auto-fired by `PRZ_SPITTING_END` at the tail of the firmware's prime sequence using the FLUSH/RETRACT TOOLCHANGE stashed. Splits long purges into chunks with kicks, then wipes and restores temp/fans. Can also be invoked directly for testing. Does NOT touch Z.
-- `_TOOLCHANGE_PENDING` — single-purpose state container that hands FLUSH/RETRACT/lifted from `TOOLCHANGE` (set) to `PRZ_SPITTING_END` (consume + clear).
-- `PG101` — pre-cut path fired by firmware inside `T[]`. Travels to chute, heats, depressurizes. Does NOT touch Z (TOOLCHANGE / PRZ_SPITTING_END own the Z sandwich).
-- `PRZ_SPITTING_START` — fixed-length gears-to-nozzle priming of new filament.
-- `PRZ_SPITTING_END` — tail of `_SPITTING_FRAME`. If `_TOOLCHANGE_PENDING.active==1`, fires `ORCA_PURGE` with the stashed FLUSH/RETRACT (which restores temp + fans), then mirrors TOOLCHANGE's Z lift with a Z lower if `lifted==1`. Otherwise just M104 to restore target temp (single-color path).
-- `_SAFE_SERVICE_TRANSIT` — shared corridor-aware pathing to the waiting area.
-- `PRZ_WAITINGAREA` — move toolhead to safe waiting position.
-- `PRZ_CUT_WAITINGAREA` — move toolhead safely to cutter / chute area.
-- `PRZ_PAUSE_WAITINGAREA` — safe pause position away from the print.
-- `PRZ_WIPEMOUTH` — single-lane nozzle wipe across the brush.
-- `PRZ_GEOMETRY` / `PRZ_RUNTIME_STATE` — geometry inputs (canonical) and PG104 runtime captures (with safe fallback defaults).
-
-## Cooling & Fan Control
-Automatically manages the mainboard fan to keep the printer electronics cool while reducing unnecessary fan noise. The system uses temperature readings to decide when the fan should run faster or slower.
-- `temperature_sensor cpu_temp` — host CPU temperature  
-- `temperature_fan board_fan` — MCU-temp watermark fan control  
-- `apply_board_fan_target` — startup application of `_USER_CONFIG.board_fan_target`  
-- `BOARD_FAN_CPU_OVERRIDE` — CPU-based override state machine  
-- `BOARD_FAN_CPU_LOOP` — periodic CPU/fan evaluation loop  
-
-## Lighting Control
-Controls the printer’s lights at startup and during normal use, allowing automatic lighting and easy manual toggling from the UI.
-- `TURN_ON_LIGHT_AT_BOOT` — startup light routine  
-- `LIGHTS_OFF_DELAY` — delayed light-off routine  
-- `Lights_On` / `Lights_Off` / `Lights_Toggle` — UI-integrated light macros  
-
-## Sound & Notifications
-Provides simple beep sounds for startup and notifications so you can hear when certain events happen.
-- `[output_pin beeper]` — buzzer pin definition  
-- `startup_beep` — startup beep routine gated by `_USER_CONFIG.enable_startup_beep`  
-- `Beep_Notify` — general-purpose notification tone macro  
-
-## Core Behavior Overrides (Replace Stock Logic)
-Changes a few built-in printer behaviors to make them safer and more reliable, especially for homing and bed mesh calibration.
-- `PG28` — stateful homing wrapper replacing stock behavior  
-- `PG28_CLEAR_HAS_RUN` — reset PG28 run-state  
-- `G30` override — removes `BED_MESH_PROFILE LOAD=default` behavior  
-
-## Bed Leveling & Mesh Routines
-Helps guide manual bed leveling and automatically adjusts how detailed bed probing is based on the size of your print.
-- `SCREWS_TILT_CALCULATE` wrapper — homes then runs screws tilt  
-- `[screws_tilt_adjust]` — bed screw geometry / leveling config  
-- `BED_MESH_CALIBRATE_CUSTOM` — adaptive probe-count mesh calibration wrapper  
-
-## Gantry Tramming (Dual Z Tilt)
-Keeps the printer’s gantry level by automatically aligning both Z motors, while avoiding unnecessary repeat leveling.
-- `Z_TILT_ADJUST` wrapper — homes if needed, then calls base tilt  
-- `Z_TILT_ONCE` — run-once tramming logic with optional force  
-- `Z_TILT_CLEAR` — clears the run-once flag  
-- `[z_tilt]` — dual-Z geometry definition  
-
-## Motion Control (Dynamic Speed by Z Height)
-Automatically slows the printer down on tall or narrow prints to reduce wobble, ringing, and print failures.
-- `DYNAMIC_SPEED` — state holder  
-- `DYNAMIC_SPEED_ENABLE` — enable + capture base accel  
-- `DYNAMIC_SPEED_DISABLE` — disable + restore captured accel  
-- `DYNAMIC_SPEED_LOOP` — periodic Z-band evaluation and application  
-
-## Stepper Thermal / Idle Management
-Reduces motor heat and noise when the motor is idle to help protect components and keep the printer quieter.
-- `apply_hold_current` — startup routine to set HOLDCURRENT values  
-
-
-## Disclaimer
-
-This configuration modifies stock Phrozen Arco Klipper behavior.
-
-- These settings have been tested on our own machines
-- Your printer, hardware, and setup may differ
-- Results may vary (YMMV)
-- Use at your own risk
-- No warranty is provided
-
-Always keep a backup of your working configuration before making changes.
