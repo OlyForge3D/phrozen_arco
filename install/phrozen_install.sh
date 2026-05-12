@@ -102,13 +102,9 @@ fi
     echo "CONFIG_DIR=$CONFIG_DIR"
 } > "$INSTALL_LOG" || fail "Could not write install log"
 
-# Backup existing files without removing working copies first.
-backup_file "$TARGET_DIR/dev.py"
-backup_file "$TARGET_DIR/kaos_logging.py"
-backup_file "$TARGET_DIR/kaos_translations.py"
+# Backup only the live printer.cfg before replacing it.
+# Other deployed files are overwritten without backup to avoid backup clutter.
 backup_file "$CONFIG_DIR/printer.cfg"
-backup_file "$CONFIG_DIR/printer_gcode_macro.cfg"
-backup_file "$CONFIG_DIR/kaos.cfg"
 
 # Copy patched Python files.
 log "copying Python files"
@@ -136,6 +132,56 @@ cp -f "$SOURCE_DIR"/kaos/*.cfg "$CONFIG_DIR/kaos/" || fail "Failed to copy split
 # Copy main config files last.
 log "copying main printer config files"
 cp -f "$SOURCE_DIR/printer.cfg" "$CONFIG_DIR/printer.cfg" || fail "Failed to copy printer.cfg"
+
+# Carry forward live printer.cfg values captured before replacement.
+fila_cut_x_pos_update_status="SKIPPED"
+save_config_update_status="SKIPPED"
+if [ "$existing_fila_cut_x_pos" != "NOT_FOUND" ]; then
+    tmp_printer_cfg="/tmp/kaos_printer_cfg_$$.tmp"
+    awk -v value="$existing_fila_cut_x_pos" '
+        /^[[:space:]]*fila_cut_x_pos[[:space:]]*:/ && replaced == 0 {
+            sub(/:.*/, ": " value)
+            replaced = 1
+        }
+        { print }
+        END {
+            if (replaced == 0) {
+                exit 2
+            }
+        }
+    ' "$CONFIG_DIR/printer.cfg" > "$tmp_printer_cfg"
+    awk_status=$?
+    if [ "$awk_status" -eq 0 ]; then
+        mv -f "$tmp_printer_cfg" "$CONFIG_DIR/printer.cfg" || fail "Failed to apply existing fila_cut_x_pos to printer.cfg"
+        fila_cut_x_pos_update_status="UPDATED"
+        log "preserved fila_cut_x_pos=$existing_fila_cut_x_pos in deployed printer.cfg"
+    else
+        rm -f "$tmp_printer_cfg"
+        fila_cut_x_pos_update_status="NOT_APPLIED_KEY_MISSING"
+        log "WARNING: could not apply fila_cut_x_pos; key missing in deployed printer.cfg"
+    fi
+fi
+
+# Carry forward the live Klipper SAVE_CONFIG block when it exists.
+# Remove any packaged SAVE_CONFIG block first so the deployed printer.cfg has only one saved block.
+if [ -s "$SAVE_CONFIG_TMP" ]; then
+    tmp_printer_cfg="/tmp/kaos_printer_cfg_$$.tmp"
+    awk '
+        /^#\*#.*SAVE_CONFIG/ { exit }
+        { print }
+    ' "$CONFIG_DIR/printer.cfg" > "$tmp_printer_cfg" || fail "Failed to strip packaged SAVE_CONFIG block from printer.cfg"
+    {
+        cat "$tmp_printer_cfg"
+        echo ""
+        cat "$SAVE_CONFIG_TMP"
+    } > "$CONFIG_DIR/printer.cfg" || fail "Failed to append existing SAVE_CONFIG block to printer.cfg"
+    rm -f "$tmp_printer_cfg"
+    save_config_update_status="UPDATED"
+    log "preserved existing SAVE_CONFIG block in deployed printer.cfg"
+else
+    save_config_update_status="NOT_FOUND"
+fi
+
 cp -f "$SOURCE_DIR/printer_gcode_macro.cfg" "$CONFIG_DIR/printer_gcode_macro.cfg" || fail "Failed to copy printer_gcode_macro.cfg"
 
 # Apply permissions.
@@ -178,6 +224,8 @@ log "installed $lang_count language py files"
     echo "lang_count=$lang_count"
     echo ""
     echo "existing_fila_cut_x_pos=$existing_fila_cut_x_pos"
+    echo "fila_cut_x_pos_update_status=$fila_cut_x_pos_update_status"
+    echo "save_config_update_status=$save_config_update_status"
     echo ""
     echo "existing_save_config_block_begin"
     if [ -s "$SAVE_CONFIG_TMP" ]; then
