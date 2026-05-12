@@ -18,7 +18,7 @@ Use at your own risk. Keep backups of your working configuration before installi
 
 ### Installation
 - Download the latest version here: [Releases](https://gitlab.com/sanders.chris/phrozenarco/-/releases)
-- Follow the [Installation Instructions](#installationoverview)
+- Follow the [Installation Instructions](#installation-overview)
 - Update your slicer G-Code as per: [KAOS G-code](https://gitlab.com/sanders.chris/phrozenarco/-/blob/88ec4c1dad946d2dc2edc06f8f370d3c5bf3f168/KAOS_Slicer_G-Code.md)
 
 
