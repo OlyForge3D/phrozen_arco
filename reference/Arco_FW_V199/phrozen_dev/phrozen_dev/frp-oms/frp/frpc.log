@@ -1,0 +1,311 @@
+2022/07/05 12:09:23 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/05 12:09:23 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/05 12:10:53 [1;33m[W] [control.go:288] [43b8f3524fff60f7] heartbeat timeout[0m
+2022/07/05 12:10:53 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/05 12:11:48 [1;33m[W] [control.go:255] [43b8f3524fff60f7] write message to control connection error: stream closed[0m
+2022/07/05 12:11:48 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/05 12:11:48 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/05 12:11:48 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/05 12:11:48 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/10 07:39:15 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/10 07:39:15 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/10 07:39:15 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/10 07:39:18 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/10 07:39:18 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/10 07:39:18 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/11 05:14:27 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/11 05:14:27 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/11 05:14:27 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/11 05:14:43 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/11 05:14:43 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/11 05:14:43 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/11 23:59:20 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/11 23:59:20 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/11 23:59:20 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/11 23:59:36 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/11 23:59:36 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/11 23:59:36 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/13 01:03:55 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/13 01:03:55 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/13 01:03:55 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/13 01:04:27 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/13 01:04:27 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/13 01:04:27 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/13 08:49:11 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/13 08:49:11 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/13 08:49:11 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/13 08:49:11 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/13 08:49:11 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/13 08:49:11 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/17 00:07:25 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/17 00:07:25 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/17 00:07:25 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:09:36 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:09:37 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:11:49 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:11:51 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:14:02 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:14:06 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:16:18 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:16:26 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:18:39 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:18:55 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:21:07 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:21:27 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:23:38 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:23:58 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:26:09 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:26:29 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:28:40 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:29:00 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:31:11 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:31:31 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:33:42 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:34:02 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:36:13 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:36:33 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:38:45 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:39:05 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:41:16 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:41:36 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:43:47 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:44:07 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:46:18 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:46:38 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:48:49 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:49:09 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:51:20 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:51:40 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:53:51 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:54:11 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:56:22 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:56:42 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 00:58:53 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 00:59:13 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:01:24 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:01:44 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:03:55 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:04:15 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:06:26 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:06:46 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:08:57 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:09:17 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:11:28 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:11:48 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:13:59 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:14:19 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:16:30 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:16:50 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:19:01 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:19:21 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:21:32 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:21:52 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:24:03 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:24:23 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:26:34 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:26:54 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:29:05 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:29:25 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:31:36 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:31:56 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:34:07 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:34:27 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:36:38 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:36:58 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:39:09 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:39:29 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:41:41 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:42:01 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:44:12 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:44:32 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:46:43 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:47:03 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:49:14 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:49:34 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:51:45 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:52:05 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:54:16 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:54:36 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:56:47 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:57:07 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 01:59:18 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 01:59:38 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:01:49 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:02:09 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:04:20 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:04:40 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:06:51 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:07:11 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:09:22 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:09:42 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:11:53 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:12:13 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:14:24 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:14:44 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:16:55 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:17:15 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:19:26 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:19:46 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:21:57 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:22:17 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:24:28 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:24:48 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:26:59 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:27:19 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:29:30 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:29:50 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:32:01 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:32:21 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:34:32 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:34:52 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:37:03 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:37:23 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:39:34 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:39:54 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:42:05 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:42:25 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:44:37 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:44:57 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:47:08 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:47:28 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:49:39 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:49:59 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:52:10 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:52:30 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:54:41 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:55:01 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:57:12 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 02:57:32 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 02:59:43 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:00:03 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:02:14 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:02:34 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:04:45 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:05:05 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:07:16 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:07:36 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:09:47 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:10:07 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:12:18 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:12:38 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:14:49 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:15:09 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:17:20 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:17:40 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:19:51 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:20:11 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:22:22 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:22:42 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:24:53 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:25:13 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:27:24 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:27:44 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:29:55 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:30:15 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:32:26 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:32:46 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:34:57 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:35:17 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:37:28 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:37:48 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:39:59 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:40:19 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:42:30 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:42:50 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:45:01 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:45:21 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:47:33 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 03:47:53 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 03:47:53 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/17 03:47:53 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/17 03:47:53 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/17 05:01:24 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/17 05:01:24 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/17 05:01:24 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:03:36 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:03:37 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:05:49 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:05:51 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:08:02 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:08:06 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:10:18 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:10:26 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:12:38 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:12:54 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:15:07 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:15:27 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:17:38 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:17:58 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:20:09 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:20:29 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:22:40 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:23:00 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:25:11 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:25:31 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:27:42 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:28:02 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:30:13 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:30:33 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:32:44 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:33:04 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:35:15 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:35:35 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:37:46 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:38:06 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:40:17 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:40:37 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:42:48 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:43:08 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:45:19 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:45:39 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:47:50 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:48:10 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:50:21 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:50:41 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:52:52 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:53:12 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:55:24 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:55:44 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:57:55 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/17 05:58:15 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/17 05:59:19 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/17 05:59:19 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/17 05:59:19 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/23 01:33:28 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/23 01:33:28 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/23 01:33:28 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:35:39 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:35:40 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:37:52 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:37:54 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:40:05 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:40:09 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:42:21 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:42:29 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:44:42 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:44:58 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:47:10 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:47:30 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:49:41 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:50:01 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:52:12 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:52:32 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:54:43 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:55:03 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:57:14 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 01:57:34 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 01:59:45 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 02:00:05 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 02:02:16 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 02:02:36 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 02:04:47 [1;33m[W] [service.go:151] [43b8f3524fff60f7] reconnect to server error: dial tcp 8.129.218.102:7001: connect: connection timed out[0m
+2022/07/23 02:05:07 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/23 02:05:08 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/23 02:05:08 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/23 02:05:08 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
+2022/07/26 09:52:57 [1;34m[I] [control.go:251] [43b8f3524fff60f7] control writer is closing[0m
+2022/07/26 09:52:57 [1;31m[E] [control.go:147] [43b8f3524fff60f7] work connection closed before response StartWorkConn message: EOF[0m
+2022/07/26 09:52:57 [1;34m[I] [service.go:148] [43b8f3524fff60f7] try to reconnect to server...[0m
+2022/07/26 09:52:58 [1;34m[I] [service.go:249] [43b8f3524fff60f7] login to server success, get run id [43b8f3524fff60f7], server udp port [7002][0m
+2022/07/26 09:52:58 [1;34m[I] [proxy_manager.go:144] [43b8f3524fff60f7] proxy added: [HYNH-KNX-22][0m
+2022/07/26 09:52:58 [1;34m[I] [control.go:164] [43b8f3524fff60f7] [HYNH-KNX-22] start proxy success[0m
