@@ -31,6 +31,7 @@ KAOS is a modular Klipper add-on system for the Phrozen Arco.
 
 It provides:
 
+- disabling of /root/soft_shutdown.sh 
 - safer movement and homing behavior
 - centralized user configuration
 - split feature-based config files
@@ -43,6 +44,9 @@ It provides:
 KAOS is no longer a single-file add-on. The current architecture uses a top-level config file plus modular feature files.
 
 ---
+
+## Disable /root/soft_shutdown.sh 
+/root/soft_shutdown.sh runs once every 0.1 seconds on the stock Arco searching for a button press of a button that does not exist. It consumes 10% of Arco CPU time and provides no functionality or value. It appears to be a remnent of a test. This update disables it, freeing up CPU cycles.
 
 ## Safety & movement protection
 - Safer movement protection 
