@@ -78,7 +78,7 @@ disable_soft_shutdown() {
             systemctl mask "$unit" 2>/dev/null || true
             soft_log "soft_shutdown_systemd_unit_status=$unit stopped_disabled_masked"
         done
-        systemctl daemon-reload 2>/dev/null || true
+        #systemctl daemon-reload 2>/dev/null || true
         soft_log "soft_shutdown_systemd_status=checked"
     else
         soft_log "soft_shutdown_systemd_status=systemctl_not_found"

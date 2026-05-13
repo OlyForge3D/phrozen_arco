@@ -1,7 +1,7 @@
 #!/bin/sh
 # KAOS_VERSION: v0.95
 
-# KAOS / Phrozen installer for ARCO300-MKS-RK3328-STM32F407VET6-I16
+# KAOS / Phrozen installer fallback for unknown model
 # POSIX sh compatible.
 # Purpose: install KAOS Python files, language files, top-level cfg files,
 # and split /config/kaos/*.cfg files with loud diagnostics and verification.
@@ -78,7 +78,7 @@ disable_soft_shutdown() {
             systemctl mask "$unit" 2>/dev/null || true
             soft_log "soft_shutdown_systemd_unit_status=$unit stopped_disabled_masked"
         done
-        systemctl daemon-reload 2>/dev/null || true
+        #systemctl daemon-reload 2>/dev/null || true
         soft_log "soft_shutdown_systemd_status=checked"
     else
         soft_log "soft_shutdown_systemd_status=systemctl_not_found"
