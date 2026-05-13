@@ -54,11 +54,11 @@ disable_soft_shutdown() {
         soft_log "soft_shutdown_process_status=not_running_or_not_found"
     fi
 
-    # Remove startup references from rc.local if present.
+    # Disable startup references from rc.local if present, but leave the line visible for recovery.
     if [ -f /etc/rc.local ]; then
         if grep -q '/root/soft_shutdown.sh' /etc/rc.local 2>/dev/null; then
-            sed -i '\|/root/soft_shutdown.sh|d' /etc/rc.local 2>/dev/null || true
-            soft_log "soft_shutdown_rc_local_status=reference_removed"
+            sed -i '\|/root/soft_shutdown.sh| { /^[[:space:]]*#/! s|^|# KAOS disabled: |; }' /etc/rc.local 2>/dev/null || true
+            soft_log "soft_shutdown_rc_local_status=reference_commented"
         else
             soft_log "soft_shutdown_rc_local_status=no_reference"
         fi
@@ -84,12 +84,12 @@ disable_soft_shutdown() {
         soft_log "soft_shutdown_systemd_status=systemctl_not_found"
     fi
 
-    # Remove the script itself if it exists.
+    # Leave the script in place for possible recovery, but remove execute permission.
     if [ -f /root/soft_shutdown.sh ]; then
-        if rm -f /root/soft_shutdown.sh 2>/dev/null; then
-            soft_log "soft_shutdown_script_status=removed"
+        if chmod a-x /root/soft_shutdown.sh 2>/dev/null; then
+            soft_log "soft_shutdown_script_status=present_execute_permission_removed"
         else
-            soft_log "soft_shutdown_script_status=remove_failed"
+            soft_log "soft_shutdown_script_status=present_chmod_failed"
         fi
     else
         soft_log "soft_shutdown_script_status=not_present"
@@ -306,5 +306,5 @@ rm -f "$SAVE_CONFIG_TMP"
 rm -f "$SOFT_SHUTDOWN_LOG_TMP"
 
 sync
-sleep 8
-systemctl reboot
+sleep 2
+reboot
