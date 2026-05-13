@@ -12,6 +12,7 @@ TARGET_DIR="/home/prz/klipper/klippy/extras/phrozen_dev"
 CONFIG_DIR="/home/prz/printer_data/config"
 INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
 SAVE_CONFIG_TMP="/tmp/kaos_save_config_$$.log"
+SOFT_SHUTDOWN_LOG_TMP="/tmp/kaos_soft_shutdown_$$.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
 
 log() {
@@ -34,6 +35,67 @@ backup_file() {
             cp -f "$file" "$file.$timestamp.bak" || fail "Failed to backup $file"
         fi
     fi
+}
+
+
+soft_log() {
+    log "$*"
+    echo "$*" >> "$SOFT_SHUTDOWN_LOG_TMP" 2>/dev/null || true
+}
+
+disable_soft_shutdown() {
+    soft_log "soft_shutdown_disable_begin"
+    soft_log "soft_shutdown_target=/root/soft_shutdown.sh"
+
+    # Stop any currently running soft shutdown script.
+    if pkill -f '/root/soft_shutdown.sh' 2>/dev/null; then
+        soft_log "soft_shutdown_process_status=killed"
+    else
+        soft_log "soft_shutdown_process_status=not_running_or_not_found"
+    fi
+
+    # Remove startup references from rc.local if present.
+    if [ -f /etc/rc.local ]; then
+        if grep -q '/root/soft_shutdown.sh' /etc/rc.local 2>/dev/null; then
+            sed -i '\|/root/soft_shutdown.sh|d' /etc/rc.local 2>/dev/null || true
+            soft_log "soft_shutdown_rc_local_status=reference_removed"
+        else
+            soft_log "soft_shutdown_rc_local_status=no_reference"
+        fi
+    else
+        soft_log "soft_shutdown_rc_local_status=not_present"
+    fi
+
+    # Disable and mask any systemd unit that directly references soft_shutdown.sh.
+    soft_shutdown_systemd_units=0
+    if command -v systemctl >/dev/null 2>&1; then
+        grep -rl '/root/soft_shutdown.sh' /etc/systemd/system /lib/systemd/system 2>/dev/null | while IFS= read -r unitfile; do
+            unit=$(basename "$unitfile")
+            soft_shutdown_systemd_units=1
+            soft_log "soft_shutdown_systemd_unit_found=$unit"
+            systemctl stop "$unit" 2>/dev/null || true
+            systemctl disable "$unit" 2>/dev/null || true
+            systemctl mask "$unit" 2>/dev/null || true
+            soft_log "soft_shutdown_systemd_unit_status=$unit stopped_disabled_masked"
+        done
+        systemctl daemon-reload 2>/dev/null || true
+        soft_log "soft_shutdown_systemd_status=checked"
+    else
+        soft_log "soft_shutdown_systemd_status=systemctl_not_found"
+    fi
+
+    # Remove the script itself if it exists.
+    if [ -f /root/soft_shutdown.sh ]; then
+        if rm -f /root/soft_shutdown.sh 2>/dev/null; then
+            soft_log "soft_shutdown_script_status=removed"
+        else
+            soft_log "soft_shutdown_script_status=remove_failed"
+        fi
+    else
+        soft_log "soft_shutdown_script_status=not_present"
+    fi
+
+    soft_log "soft_shutdown_disable_end"
 }
 
 # Use the directory containing this installer as the source package directory.
@@ -87,8 +149,7 @@ if [ -f "$CONFIG_DIR/printer.cfg" ]; then
         | sed -E 's/^[[:space:]]*fila_cut_x_pos[[:space:]]*:[[:space:]]*//; s/[[:space:]]*[#;].*$//; s/^[[:space:]]+//; s/[[:space:]]+$//')
     [ -n "$existing_fila_cut_x_pos" ] || existing_fila_cut_x_pos="NOT_FOUND"
 
-    # Preserve the existing Klipper SAVE_CONFIG block in the install log only.
-    # This does not copy it back into the deployed printer.cfg.
+    # Preserve the existing Klipper SAVE_CONFIG block before printer.cfg is replaced.
     awk '
         found { print; next }
         /^#\*#.*SAVE_CONFIG/ { found=1; print }
@@ -102,8 +163,7 @@ fi
     echo "CONFIG_DIR=$CONFIG_DIR"
 } > "$INSTALL_LOG" || fail "Could not write install log"
 
-# Backup only the live printer.cfg before replacing it.
-# Other deployed files are overwritten without backup to avoid backup clutter.
+# Backup only printer.cfg. Other KAOS files are overwritten directly.
 backup_file "$CONFIG_DIR/printer.cfg"
 
 # Copy patched Python files.
@@ -132,57 +192,49 @@ cp -f "$SOURCE_DIR"/kaos/*.cfg "$CONFIG_DIR/kaos/" || fail "Failed to copy split
 # Copy main config files last.
 log "copying main printer config files"
 cp -f "$SOURCE_DIR/printer.cfg" "$CONFIG_DIR/printer.cfg" || fail "Failed to copy printer.cfg"
+cp -f "$SOURCE_DIR/printer_gcode_macro.cfg" "$CONFIG_DIR/printer_gcode_macro.cfg" || fail "Failed to copy printer_gcode_macro.cfg"
 
-# Carry forward live printer.cfg values captured before replacement.
-fila_cut_x_pos_update_status="SKIPPED"
-save_config_update_status="SKIPPED"
+# Preserve live printer.cfg values in the freshly deployed printer.cfg.
+fila_cut_x_pos_update_status="skipped_NOT_FOUND"
+save_config_update_status="skipped_NOT_FOUND"
+
 if [ "$existing_fila_cut_x_pos" != "NOT_FOUND" ]; then
-    tmp_printer_cfg="/tmp/kaos_printer_cfg_$$.tmp"
-    awk -v value="$existing_fila_cut_x_pos" '
-        /^[[:space:]]*fila_cut_x_pos[[:space:]]*:/ && replaced == 0 {
-            sub(/:.*/, ": " value)
-            replaced = 1
-        }
-        { print }
-        END {
-            if (replaced == 0) {
-                exit 2
-            }
-        }
-    ' "$CONFIG_DIR/printer.cfg" > "$tmp_printer_cfg"
-    awk_status=$?
-    if [ "$awk_status" -eq 0 ]; then
-        mv -f "$tmp_printer_cfg" "$CONFIG_DIR/printer.cfg" || fail "Failed to apply existing fila_cut_x_pos to printer.cfg"
-        fila_cut_x_pos_update_status="UPDATED"
-        log "preserved fila_cut_x_pos=$existing_fila_cut_x_pos in deployed printer.cfg"
+    if grep -qE '^[[:space:]]*fila_cut_x_pos[[:space:]]*:' "$CONFIG_DIR/printer.cfg"; then
+        PRINTER_CFG_TMP="/tmp/kaos_printer_cfg_$$.tmp"
+        sed -E "s|^[[:space:]]*fila_cut_x_pos[[:space:]]*:.*|fila_cut_x_pos: $existing_fila_cut_x_pos|"             "$CONFIG_DIR/printer.cfg" > "$PRINTER_CFG_TMP"             || fail "Failed to prepare preserved fila_cut_x_pos update"
+        mv -f "$PRINTER_CFG_TMP" "$CONFIG_DIR/printer.cfg"             || fail "Failed to apply preserved fila_cut_x_pos to printer.cfg"
+
+        if grep -qE "^[[:space:]]*fila_cut_x_pos[[:space:]]*:[[:space:]]*$existing_fila_cut_x_pos([[:space:]]*([#;].*)?)?$" "$CONFIG_DIR/printer.cfg"; then
+            fila_cut_x_pos_update_status="updated"
+            log "preserved fila_cut_x_pos=$existing_fila_cut_x_pos in deployed printer.cfg"
+        else
+            fila_cut_x_pos_update_status="update_verify_failed"
+            log "WARNING: fila_cut_x_pos update attempted but verify failed"
+        fi
     else
-        rm -f "$tmp_printer_cfg"
-        fila_cut_x_pos_update_status="NOT_APPLIED_KEY_MISSING"
-        log "WARNING: could not apply fila_cut_x_pos; key missing in deployed printer.cfg"
+        fila_cut_x_pos_update_status="target_key_not_found"
+        log "WARNING: could not preserve fila_cut_x_pos because deployed printer.cfg has no fila_cut_x_pos key"
     fi
+else
+    fila_cut_x_pos_update_status="source_value_not_found"
+    log "WARNING: could not preserve fila_cut_x_pos because source value was not found"
 fi
 
-# Carry forward the live Klipper SAVE_CONFIG block when it exists.
-# Remove any packaged SAVE_CONFIG block first so the deployed printer.cfg has only one saved block.
 if [ -s "$SAVE_CONFIG_TMP" ]; then
-    tmp_printer_cfg="/tmp/kaos_printer_cfg_$$.tmp"
+    PRINTER_CFG_TMP="/tmp/kaos_printer_cfg_save_config_$$.tmp"
     awk '
-        /^#\*#.*SAVE_CONFIG/ { exit }
-        { print }
-    ' "$CONFIG_DIR/printer.cfg" > "$tmp_printer_cfg" || fail "Failed to strip packaged SAVE_CONFIG block from printer.cfg"
+        /^#\*#.*SAVE_CONFIG/ { skip=1; next }
+        skip == 0 { print }
+    ' "$CONFIG_DIR/printer.cfg" > "$PRINTER_CFG_TMP" || fail "Failed to prepare printer.cfg for SAVE_CONFIG preservation"
     {
-        cat "$tmp_printer_cfg"
         echo ""
         cat "$SAVE_CONFIG_TMP"
-    } > "$CONFIG_DIR/printer.cfg" || fail "Failed to append existing SAVE_CONFIG block to printer.cfg"
-    rm -f "$tmp_printer_cfg"
-    save_config_update_status="UPDATED"
+    } >> "$PRINTER_CFG_TMP" || fail "Failed to append existing SAVE_CONFIG block to printer.cfg"
+    mv -f "$PRINTER_CFG_TMP" "$CONFIG_DIR/printer.cfg" || fail "Failed to preserve existing SAVE_CONFIG block in printer.cfg"
+    save_config_update_status="updated"
     log "preserved existing SAVE_CONFIG block in deployed printer.cfg"
-else
-    save_config_update_status="NOT_FOUND"
 fi
 
-cp -f "$SOURCE_DIR/printer_gcode_macro.cfg" "$CONFIG_DIR/printer_gcode_macro.cfg" || fail "Failed to copy printer_gcode_macro.cfg"
 
 # Apply permissions.
 log "applying permissions"
@@ -218,6 +270,8 @@ log "installed $lang_count language py files"
 [ "$cfg_count" -gt 0 ] || fail "Verify failed: no split KAOS cfg files installed in $CONFIG_DIR/kaos"
 [ "$lang_count" -gt 0 ] || fail "Verify failed: no language py files installed in $TARGET_DIR/lang"
 
+disable_soft_shutdown
+
 {
     echo "KAOS install completed at $(date)"
     echo "cfg_count=$cfg_count"
@@ -235,13 +289,22 @@ log "installed $lang_count language py files"
     fi
     echo "existing_save_config_block_end"
     echo ""
+    echo "soft_shutdown_disable_log_begin"
+    if [ -s "$SOFT_SHUTDOWN_LOG_TMP" ]; then
+        cat "$SOFT_SHUTDOWN_LOG_TMP"
+    else
+        echo "NOT_RUN"
+    fi
+    echo "soft_shutdown_disable_log_end"
+    echo ""
     echo "KAOS_INSTALL_SUCCESS: KAOS install completed"
     echo ""
     echo "Rebooting printer after KAOS install at $(date)"
 } >> "$INSTALL_LOG"
 
 rm -f "$SAVE_CONFIG_TMP"
+rm -f "$SOFT_SHUTDOWN_LOG_TMP"
 
 sync
-sleep 2
-reboot
+sleep 8
+systemctl reboot
