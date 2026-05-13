@@ -236,7 +236,7 @@ Pre-built release zips are attached to each GitLab tag (see [Releases](https://g
 2. Unzip on a PC — you'll see a `phrozen_dev/` folder containing `phrozen_dev.zip`
 3. Copy that whole `phrozen_dev/` folder (with `phrozen_dev.zip` inside it) to a USB stick root
 4. Plug into the printer and run the Phrozen update flow — the updater finds `phrozen_dev/phrozen_dev.zip` and unpacks it
-5. As of the latest verion, Arco should reboot automatically after install. If it does not, full power-cycle the printer (Klipper-only restart isn't enough; Python modules need a fresh load)
+5. The printer reboots automatically after install. If it does not, full power-cycle it (a Klipper-only restart isn't enough; Python modules need a fresh load).
 
 ---
 
