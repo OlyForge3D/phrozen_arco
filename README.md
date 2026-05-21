@@ -1,6 +1,6 @@
 # Phrozen Arco – KAOS (Klipper Add-On System)
 
-**Note: **KAOS does not currently work with Phrozen Orca and there are no plans to make it work. You will need to use regular Orca.
+**Note**: KAOS does not currently work with Phrozen Orca and there are no plans to make it work. You will need to use regular Orca.
 
 ## Project Status
 
