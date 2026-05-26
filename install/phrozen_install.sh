@@ -279,24 +279,12 @@ remove_phrozen_go() {
     ph_log "phrozen_go_remove_end"
 }
 
-# --- Enable Moonraker update managers for core + web UIs ----------------------
-# Ensures [update_manager moonraker], [update_manager klipper],
-# [update_manager mainsail], and [update_manager fluidd] exist in moonraker.conf.
-# This enables in-UI updates for all core components and frontends.
-#
-# Minimum versions currently required by the Arco UI:
-#   Moonraker >= v0.8.0-306
-#   Klipper   >= v0.11.0-257
-#
-# Pinned commits that satisfy the minimum requirements and prevent drift to
-# latest upstream:
-#   Moonraker v0.8.0-306-g71517b2 -> 71517b255dc43c7e99fbc269d34deba9b30dd9f6
-#   Klipper   v0.11.0-257-ged66982b -> ed66982b8eb06ce8843d8b5163c6bd290e1754c9
-
-MOONRAKER_MIN_VERSION="v0.8.0-306"
-KLIPPER_MIN_VERSION="v0.11.0-257"
-MOONRAKER_PINNED_COMMIT="71517b255dc43c7e99fbc269d34deba9b30dd9f6"
-KLIPPER_PINNED_COMMIT="ed66982b8eb06ce8843d8b5163c6bd290e1754c9"
+# --- Enable Moonraker update managers for web UIs only ------------------------
+# Modern Moonraker manages core updaters (moonraker + klipper) internally.
+# Manually adding [update_manager moonraker] / [update_manager klipper]
+# can trigger duplicate-extension errors and unparsed option warnings.
+# We therefore only manage [update_manager mainsail] and [update_manager fluidd]
+# and remove any legacy core sections this installer may have appended before.
 
 um_log() {
     log "$*"
@@ -305,10 +293,6 @@ um_log() {
 
 enable_update_managers() {
     um_log "update_manager_begin"
-    um_log "min_required_moonraker=$MOONRAKER_MIN_VERSION"
-    um_log "min_required_klipper=$KLIPPER_MIN_VERSION"
-    um_log "pinned_commit_moonraker=$MOONRAKER_PINNED_COMMIT"
-    um_log "pinned_commit_klipper=$KLIPPER_PINNED_COMMIT"
 
     if [ ! -f "$MOONRAKER_CONF" ]; then
         um_log "update_manager_moonraker_conf=not_found"
@@ -320,49 +304,37 @@ enable_update_managers() {
     # Back up moonraker.conf before modifying.
     backup_file "$MOONRAKER_CONF"
 
-    # Moonraker core update manager
-    if grep -q '\[update_manager moonraker\]' "$MOONRAKER_CONF" 2> /dev/null; then
-        um_log "update_manager_moonraker=already_present"
-    else
-        um_log "update_manager_moonraker=adding"
-        cat >> "$MOONRAKER_CONF" << 'MOONRAKER_EOF'
-
-[update_manager moonraker]
-type: git_repo
-channel: stable
-path: ~/moonraker
-origin: https://github.com/Arksine/moonraker.git
-primary_branch: master
-pinned_commit: 71517b255dc43c7e99fbc269d34deba9b30dd9f6
-managed_services: moonraker
-MOONRAKER_EOF
-        if grep -q '\[update_manager moonraker\]' "$MOONRAKER_CONF" 2> /dev/null; then
-            um_log "update_manager_moonraker=added"
+    # Remove legacy core sections previously appended by this installer.
+    # Keep only the built-in Moonraker-managed core updaters.
+    if grep -q '^\[update_manager moonraker\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+        um_log "update_manager_moonraker=removing_legacy_section"
+        tmp_conf="${MOONRAKER_CONF}.tmp.$$"
+        awk '
+            BEGIN { in_section=0 }
+            $0 == "[update_manager moonraker]" { in_section=1; next }
+            in_section && /^\[/ { in_section=0 }
+            !in_section { print }
+        ' "$MOONRAKER_CONF" > "$tmp_conf" && mv "$tmp_conf" "$MOONRAKER_CONF"
+        if grep -q '^\[update_manager moonraker\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+            um_log "update_manager_moonraker=remove_failed"
         else
-            um_log "update_manager_moonraker=add_failed"
+            um_log "update_manager_moonraker=removed"
         fi
     fi
 
-    # Klipper core update manager
-    if grep -q '\[update_manager klipper\]' "$MOONRAKER_CONF" 2> /dev/null; then
-        um_log "update_manager_klipper=already_present"
-    else
-        um_log "update_manager_klipper=adding"
-        cat >> "$MOONRAKER_CONF" << 'KLIPPER_EOF'
-
-[update_manager klipper]
-type: git_repo
-channel: stable
-path: ~/klipper
-origin: https://github.com/Klipper3d/klipper.git
-primary_branch: master
-pinned_commit: ed66982b8eb06ce8843d8b5163c6bd290e1754c9
-managed_services: klipper
-KLIPPER_EOF
-        if grep -q '\[update_manager klipper\]' "$MOONRAKER_CONF" 2> /dev/null; then
-            um_log "update_manager_klipper=added"
+    if grep -q '^\[update_manager klipper\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+        um_log "update_manager_klipper=removing_legacy_section"
+        tmp_conf="${MOONRAKER_CONF}.tmp.$$"
+        awk '
+            BEGIN { in_section=0 }
+            $0 == "[update_manager klipper]" { in_section=1; next }
+            in_section && /^\[/ { in_section=0 }
+            !in_section { print }
+        ' "$MOONRAKER_CONF" > "$tmp_conf" && mv "$tmp_conf" "$MOONRAKER_CONF"
+        if grep -q '^\[update_manager klipper\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+            um_log "update_manager_klipper=remove_failed"
         else
-            um_log "update_manager_klipper=add_failed"
+            um_log "update_manager_klipper=removed"
         fi
     fi
 
@@ -539,21 +511,15 @@ if $WHATIF; then
     log "    - Remove: /etc/frp/ (if exists)"
     log "    - Patch: $TARGET_DIR/start.sh (comment out phone-home lines)"
     log "    - Patch: /home/mks/KlipperScreen/scripts/KlipperScreen-start.sh"
-    log "  [UPDATE_MANAGER] Enable Moonraker update managers for Moonraker, Klipper, Mainsail, and Fluidd:"
-    log "    - Minimum required: Moonraker >= $MOONRAKER_MIN_VERSION, Klipper >= $KLIPPER_MIN_VERSION"
-    log "    - Pinned commits:"
-    log "      Moonraker: $MOONRAKER_PINNED_COMMIT"
-    log "      Klipper:   $KLIPPER_PINNED_COMMIT"
+    log "  [UPDATE_MANAGER] Enable Moonraker update managers for Mainsail and Fluidd:"
+    log "    - Core update managers (moonraker/klipper) are handled by Moonraker itself"
+    log "    - Remove legacy [update_manager moonraker]/[update_manager klipper] sections if present"
     if [ -f "$MOONRAKER_CONF" ]; then
-        if grep -q '\[update_manager moonraker\]' "$MOONRAKER_CONF" 2> /dev/null; then
-            log "    - Moonraker: already present"
-        else
-            log "    - Moonraker: [APPEND] [update_manager moonraker] to moonraker.conf"
+        if grep -q '^\[update_manager moonraker\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+            log "    - Moonraker core: [REMOVE] legacy [update_manager moonraker] section"
         fi
-        if grep -q '\[update_manager klipper\]' "$MOONRAKER_CONF" 2> /dev/null; then
-            log "    - Klipper: already present"
-        else
-            log "    - Klipper: [APPEND] [update_manager klipper] to moonraker.conf"
+        if grep -q '^\[update_manager klipper\]$' "$MOONRAKER_CONF" 2> /dev/null; then
+            log "    - Klipper core: [REMOVE] legacy [update_manager klipper] section"
         fi
         if grep -q '\[update_manager mainsail\]' "$MOONRAKER_CONF" 2> /dev/null; then
             log "    - Mainsail: already present"
