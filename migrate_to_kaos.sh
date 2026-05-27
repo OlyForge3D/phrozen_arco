@@ -34,7 +34,7 @@ KAOS_BRANCH="dev"
 
 # Pinned commits — these are the tested versions for the Phrozen Arco.
 # Moonraker's update_manager will refuse to update beyond these.
-KLIPPER_PIN="ed66982b8eb06ce8843d8b5163c6bd290e1754c9"   # v0.11.0-257
+KLIPPER_PIN="0aacbc39736c933491690bf8174a0658acf4482f"   # v0.12.0+168 (has minimum_cruise_ratio)
 MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 
 # Known fork URLs to migrate away from (matched as substrings)
