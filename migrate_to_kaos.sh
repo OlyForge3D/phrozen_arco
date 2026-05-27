@@ -32,8 +32,8 @@ MAINLINE_MOONRAKER="https://github.com/Arksine/moonraker.git"
 KAOS_REPO="https://github.com/OlyForge3D/phrozen_arco.git"
 KAOS_BRANCH="dev"
 
-# Pinned commits — these are the tested versions for the Phrozen Arco.
-# Moonraker's update_manager will refuse to update beyond these.
+# Pinned commits — initial versions to check out during migration.
+# Ongoing pin enforcement is handled by phrozen_install.sh via moonraker.conf.
 KLIPPER_PIN="0aacbc39736c933491690bf8174a0658acf4482f"   # v0.12.0+168 (has minimum_cruise_ratio)
 MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 
@@ -145,33 +145,7 @@ info "[4/5] Moonraker update_manager"
 if [ ! -f "$MOONRAKER_CONF" ]; then
     warn "  $MOONRAKER_CONF not found — skipping update_manager setup"
 else
-    # Pin Klipper updates
-    if grep -q '\[update_manager klipper\]' "$MOONRAKER_CONF" 2>/dev/null; then
-        info "  [update_manager klipper] already present"
-    else
-        info "  Adding [update_manager klipper] (pinned)"
-        cat >> "$MOONRAKER_CONF" << KLIPPER_EOF
-
-[update_manager klipper]
-channel: dev
-pinned_commit: $KLIPPER_PIN
-KLIPPER_EOF
-    fi
-
-    # Pin Moonraker updates
-    if grep -q '\[update_manager moonraker\]' "$MOONRAKER_CONF" 2>/dev/null; then
-        info "  [update_manager moonraker] already present"
-    else
-        info "  Adding [update_manager moonraker] (pinned)"
-        cat >> "$MOONRAKER_CONF" << MOONRAKER_EOF
-
-[update_manager moonraker]
-channel: dev
-pinned_commit: $MOONRAKER_PIN
-MOONRAKER_EOF
-    fi
-
-    # KAOS update_manager section
+    # KAOS update_manager section (phrozen_install.sh handles klipper/moonraker pins)
     if grep -q '\[update_manager kaos\]' "$MOONRAKER_CONF" 2>/dev/null; then
         info "  [update_manager kaos] already present"
     else

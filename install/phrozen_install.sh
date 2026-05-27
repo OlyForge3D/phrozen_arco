@@ -8,9 +8,15 @@
 
 set -u
 
-TARGET_DIR="/home/mks/klipper/klippy/extras/phrozen_dev"
+KLIPPER_DIR="/home/mks/klipper"
+TARGET_DIR="$KLIPPER_DIR/klippy/extras/phrozen_dev"
 CONFIG_DIR="/home/mks/printer_data/config"
 INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
+
+# Pinned commits — tested versions for the Phrozen Arco.
+# Moonraker's update_manager will refuse to update beyond these.
+KLIPPER_PIN="0aacbc39736c933491690bf8174a0658acf4482f"   # v0.12.0+168 (has minimum_cruise_ratio)
+MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 SAVE_CONFIG_TMP="/tmp/kaos_save_config_$$.log"
 SOFT_SHUTDOWN_LOG_TMP="/tmp/kaos_soft_shutdown_$$.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
@@ -279,16 +285,58 @@ remove_phrozen_go() {
     ph_log "phrozen_go_remove_end"
 }
 
-# --- Enable Moonraker update managers for web UIs only ------------------------
-# Modern Moonraker manages core updaters (moonraker + klipper) internally.
-# Manually adding [update_manager moonraker] / [update_manager klipper]
-# can trigger duplicate-extension errors and unparsed option warnings.
-# We therefore only manage [update_manager mainsail] and [update_manager fluidd]
-# and remove any legacy core sections this installer may have appended before.
+# --- Manage Moonraker update_manager sections ---------------------------------
+# Ensures pinned_commit sections exist for Klipper and Moonraker to prevent
+# uncontrolled updates, and adds web UI update managers.
 
 um_log() {
     log "$*"
     echo "$*" >> "$UPDATE_MGR_LOG_TMP" 2> /dev/null || true
+}
+
+# upsert_update_manager: ensures a section exists with the correct pinned_commit.
+# If the section exists but has wrong/missing pinned_commit, replace it.
+# If the section doesn't exist, append it.
+# Usage: upsert_update_manager "section_name" "channel" "pinned_commit_sha"
+upsert_update_manager() {
+    _section_name="$1"
+    _channel="$2"
+    _pin="$3"
+    _section_header="[update_manager $_section_name]"
+
+    if grep -q "^\[update_manager $_section_name\]$" "$MOONRAKER_CONF" 2>/dev/null; then
+        # Section exists — check if pinned_commit matches
+        if grep -A5 "^\[update_manager $_section_name\]$" "$MOONRAKER_CONF" | grep -q "pinned_commit: $_pin"; then
+            um_log "update_manager_${_section_name}=already_correct"
+        else
+            # Remove old section and re-add with correct pin
+            um_log "update_manager_${_section_name}=updating_pin"
+            tmp_conf="${MOONRAKER_CONF}.tmp.$$"
+            awk -v sect="$_section_header" '
+                BEGIN { in_section=0 }
+                $0 == sect { in_section=1; next }
+                in_section && /^\[/ { in_section=0 }
+                !in_section { print }
+            ' "$MOONRAKER_CONF" > "$tmp_conf" && mv "$tmp_conf" "$MOONRAKER_CONF"
+            cat >> "$MOONRAKER_CONF" << UPSERT_EOF
+
+$_section_header
+channel: $_channel
+pinned_commit: $_pin
+UPSERT_EOF
+            um_log "update_manager_${_section_name}=updated"
+        fi
+    else
+        # Section does not exist — add it
+        um_log "update_manager_${_section_name}=adding"
+        cat >> "$MOONRAKER_CONF" << UPSERT_EOF
+
+$_section_header
+channel: $_channel
+pinned_commit: $_pin
+UPSERT_EOF
+        um_log "update_manager_${_section_name}=added"
+    fi
 }
 
 enable_update_managers() {
@@ -304,39 +352,9 @@ enable_update_managers() {
     # Back up moonraker.conf before modifying.
     backup_file "$MOONRAKER_CONF"
 
-    # Remove legacy core sections previously appended by this installer.
-    # Keep only the built-in Moonraker-managed core updaters.
-    if grep -q '^\[update_manager moonraker\]$' "$MOONRAKER_CONF" 2> /dev/null; then
-        um_log "update_manager_moonraker=removing_legacy_section"
-        tmp_conf="${MOONRAKER_CONF}.tmp.$$"
-        awk '
-            BEGIN { in_section=0 }
-            $0 == "[update_manager moonraker]" { in_section=1; next }
-            in_section && /^\[/ { in_section=0 }
-            !in_section { print }
-        ' "$MOONRAKER_CONF" > "$tmp_conf" && mv "$tmp_conf" "$MOONRAKER_CONF"
-        if grep -q '^\[update_manager moonraker\]$' "$MOONRAKER_CONF" 2> /dev/null; then
-            um_log "update_manager_moonraker=remove_failed"
-        else
-            um_log "update_manager_moonraker=removed"
-        fi
-    fi
-
-    if grep -q '^\[update_manager klipper\]$' "$MOONRAKER_CONF" 2> /dev/null; then
-        um_log "update_manager_klipper=removing_legacy_section"
-        tmp_conf="${MOONRAKER_CONF}.tmp.$$"
-        awk '
-            BEGIN { in_section=0 }
-            $0 == "[update_manager klipper]" { in_section=1; next }
-            in_section && /^\[/ { in_section=0 }
-            !in_section { print }
-        ' "$MOONRAKER_CONF" > "$tmp_conf" && mv "$tmp_conf" "$MOONRAKER_CONF"
-        if grep -q '^\[update_manager klipper\]$' "$MOONRAKER_CONF" 2> /dev/null; then
-            um_log "update_manager_klipper=remove_failed"
-        else
-            um_log "update_manager_klipper=removed"
-        fi
-    fi
+    # Ensure Klipper and Moonraker are pinned to tested versions.
+    upsert_update_manager "klipper" "dev" "$KLIPPER_PIN"
+    upsert_update_manager "moonraker" "dev" "$MOONRAKER_PIN"
 
     # Mainsail update manager
     if grep -q '\[update_manager mainsail\]' "$MOONRAKER_CONF" 2> /dev/null; then
@@ -444,6 +462,19 @@ if ! $WHATIF; then
     rm -f "$CONFIG_DIR/.kaos_write_test" || fail "Cannot remove write-test file from: $CONFIG_DIR"
     mkdir -p "$CONFIG_DIR/.kaos_mkdir_test" || fail "Cannot create directories in config directory: $CONFIG_DIR"
     rmdir "$CONFIG_DIR/.kaos_mkdir_test" || fail "Cannot remove mkdir-test directory from: $CONFIG_DIR"
+fi
+
+# --- Migration preflight check ------------------------------------------------
+# Verify that migrate_to_kaos.sh has been run. The installer requires Klipper to
+# be pointing at mainline (Klipper3d/klipper), not the old Phrozen fork.
+if [ -d "$KLIPPER_DIR/.git" ]; then
+    klipper_origin=$(git -C "$KLIPPER_DIR" remote get-url origin 2>/dev/null || echo "")
+    case "$klipper_origin" in
+        *Klipper3d/klipper*) ;;  # Good — mainline
+        *)
+            fail "Klipper origin is '$klipper_origin' (not mainline Klipper3d/klipper). Run migrate_to_kaos.sh first."
+            ;;
+    esac
 fi
 
 # Install log so we can prove this script actually ran and preserve live values before replacement.
