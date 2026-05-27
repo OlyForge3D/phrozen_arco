@@ -132,19 +132,10 @@ if [ -d "$KAOS_DIR/.git" ]; then
     git -C "$KAOS_DIR" fetch origin 2>/dev/null || warn "Fetch failed"
     git -C "$KAOS_DIR" reset --hard "origin/$KAOS_BRANCH" 2>/dev/null || warn "Reset failed"
 else
-    info "  Cloning KAOS (sparse: config/, phrozen_dev/, install/) to ~/kaos..."
-
-    # Use sparse checkout to avoid pulling tests/, tools/, reference/, etc.
-    git clone --no-checkout --filter=blob:none --branch "$KAOS_BRANCH" \
-        "$KAOS_REPO" "$KAOS_DIR" 2>/dev/null || fatal "Failed to clone KAOS repo"
-
-    cd "$KAOS_DIR"
-    git sparse-checkout init --cone
-    git sparse-checkout set config phrozen_dev install
-    git checkout "$KAOS_BRANCH"
-    cd "$HOME"
-
-    info "  Sparse clone complete"
+    info "  Cloning KAOS to ~/kaos..."
+    git clone --branch "$KAOS_BRANCH" --single-branch --depth 1 \
+        "$KAOS_REPO" "$KAOS_DIR" || fatal "Failed to clone KAOS repo"
+    info "  Clone complete"
 fi
 echo ""
 
