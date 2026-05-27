@@ -383,7 +383,19 @@ FLUIDD_EOF
 
 # Use the directory containing this installer as the source package directory.
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2> /dev/null && pwd)
-SOURCE_DIR="$SCRIPT_DIR"
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." 2>/dev/null && pwd)
+
+# Detect repo layout: structured (install/ + phrozen_dev/ + config/) vs flat (all-in-one).
+if [ -f "$REPO_ROOT/phrozen_dev/dev.py" ] && [ -d "$REPO_ROOT/config/kaos" ]; then
+    # Structured repo — assemble flat staging dir from phrozen_dev/ + config/
+    SOURCE_DIR=$(mktemp -d "/tmp/kaos_stage_XXXXXX")
+    _cleanup_stage() { rm -rf "$SOURCE_DIR"; }
+    trap '_cleanup_stage' EXIT
+    cp -a "$REPO_ROOT/phrozen_dev/"* "$SOURCE_DIR/" 2>/dev/null || true
+    cp -a "$REPO_ROOT/config/"* "$SOURCE_DIR/" 2>/dev/null || true
+else
+    SOURCE_DIR="$SCRIPT_DIR"
+fi
 
 [ -f "$SOURCE_DIR/dev.py" ] || fail "Could not find source package directory containing dev.py: $SOURCE_DIR"
 
