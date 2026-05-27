@@ -397,12 +397,14 @@ log "TARGET_DIR=$TARGET_DIR"
 log "CONFIG_DIR=$CONFIG_DIR"
 
 # Validate source package before changing live files.
+[ -f "$SOURCE_DIR/__init__.py" ] || fail "Missing source file: $SOURCE_DIR/__init__.py"
 [ -f "$SOURCE_DIR/dev.py" ] || fail "Missing source file: $SOURCE_DIR/dev.py"
 [ -f "$SOURCE_DIR/kaos_logging.py" ] || fail "Missing source file: $SOURCE_DIR/kaos_logging.py"
 [ -f "$SOURCE_DIR/cmds.py" ] || fail "Missing source file: $SOURCE_DIR/cmds.py"
 [ -f "$SOURCE_DIR/base.py" ] || fail "Missing source file: $SOURCE_DIR/base.py"
 [ -f "$SOURCE_DIR/cwebsocketapis.py" ] || fail "Missing source file: $SOURCE_DIR/cwebsocketapis.py"
 [ -f "$SOURCE_DIR/KlipperScreen-start.sh" ] || fail "Missing source file: $SOURCE_DIR/KlipperScreen-start.sh"
+[ -d "$SOURCE_DIR/pyusb-master" ] || fail "Missing source directory: $SOURCE_DIR/pyusb-master"
 [ -f "$SOURCE_DIR/kaos.cfg" ] || fail "Missing source file: $SOURCE_DIR/kaos.cfg"
 [ -d "$SOURCE_DIR/kaos" ] || fail "Missing source directory: $SOURCE_DIR/kaos"
 [ -f "$SOURCE_DIR/printer.cfg" ] || fail "Missing source file: $SOURCE_DIR/printer.cfg"
@@ -412,8 +414,10 @@ log "CONFIG_DIR=$CONFIG_DIR"
 set -- "$SOURCE_DIR"/kaos/*.cfg
 [ -f "$1" ] || fail "No .cfg files found in source directory: $SOURCE_DIR/kaos"
 
-# Validate destination paths and permissions before copying.
-[ -d "$TARGET_DIR" ] || fail "Target directory does not exist: $TARGET_DIR"
+# Ensure destination paths exist and are writable.
+if ! $WHATIF; then
+    mkdir -p "$TARGET_DIR" || fail "Cannot create target directory: $TARGET_DIR"
+fi
 [ -d "$CONFIG_DIR" ] || fail "Config directory does not exist: $CONFIG_DIR"
 
 log "checking write access to $TARGET_DIR"
@@ -454,11 +458,12 @@ if $WHATIF; then
     log "============================================================"
     log ""
     log "Python files to install -> $TARGET_DIR:"
-    for f in dev.py kaos_logging.py cmds.py base.py cwebsocketapis.py; do
+    for f in __init__.py dev.py kaos_logging.py cmds.py base.py cwebsocketapis.py; do
         if [ -f "$SOURCE_DIR/$f" ]; then
             log "  [COPY] $SOURCE_DIR/$f -> $TARGET_DIR/$f"
         fi
     done
+    log "  [COPY] $SOURCE_DIR/pyusb-master/ -> $TARGET_DIR/pyusb-master/"
     log ""
     log "Legacy files to remove:"
     log "  [REMOVE] $TARGET_DIR/kaos_translations.py (if exists)"
@@ -556,11 +561,17 @@ backup_file "$CONFIG_DIR/printer.cfg"
 
 # Copy patched Python files.
 log "copying Python files"
+cp -f "$SOURCE_DIR/__init__.py" "$TARGET_DIR/__init__.py" || fail "Failed to copy __init__.py"
 cp -f "$SOURCE_DIR/dev.py" "$TARGET_DIR/dev.py" || fail "Failed to copy dev.py"
 cp -f "$SOURCE_DIR/kaos_logging.py" "$TARGET_DIR/kaos_logging.py" || fail "Failed to copy kaos_logging.py"
 cp -f "$SOURCE_DIR/cmds.py" "$TARGET_DIR/cmds.py" || fail "Failed to copy cmds.py"
 cp -f "$SOURCE_DIR/base.py" "$TARGET_DIR/base.py" || fail "Failed to copy base.py"
 cp -f "$SOURCE_DIR/cwebsocketapis.py" "$TARGET_DIR/cwebsocketapis.py" || fail "Failed to copy cwebsocketapis.py"
+
+# Deploy vendored pyusb library (USB communication dependency).
+log "copying pyusb-master"
+rm -rf "$TARGET_DIR/pyusb-master"
+cp -rf "$SOURCE_DIR/pyusb-master" "$TARGET_DIR/pyusb-master" || fail "Failed to copy pyusb-master"
 
 # Deploy KAOS-patched KlipperScreen-start.sh (phone-home removed, English comments).
 log "copying KlipperScreen-start.sh"

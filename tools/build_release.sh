@@ -134,6 +134,9 @@ echo ">> Package:         $PACKAGE_NAME"
 # serial-screen/ subdirectory is excluded (deployed separately by installer)
 find phrozen_dev -maxdepth 1 -type f ! -name '.DS_Store' -exec cp {} "$PHROZEN_DEV/" \;
 
+# Vendored pyusb library (USB communication dependency)
+cp -r phrozen_dev/pyusb-master "$PHROZEN_DEV/pyusb-master"
+
 # Top-level klipper config files
 cp config/kaos.cfg config/printer.cfg config/printer_gcode_macro.cfg "$PHROZEN_DEV/"
 
