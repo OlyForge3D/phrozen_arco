@@ -6,10 +6,10 @@
 # This keeps phrozen_install.sh as the single source of truth for installation.
 #
 # One-liner to run from the printer's SSH session:
-#   wget -qO- https://raw.githubusercontent.com/jpapiez/phrozenarco/main/tools/dev_deploy.sh | sh
+#   wget -qO- https://raw.githubusercontent.com/OlyForge3D/phrozen_arco/dev/tools/dev_deploy.sh | sh
 #
 # Or with a specific branch:
-#   wget -qO- https://raw.githubusercontent.com/jpapiez/phrozenarco/main/tools/dev_deploy.sh | sh -s -- --branch main
+#   wget -qO- https://raw.githubusercontent.com/OlyForge3D/phrozen_arco/dev/tools/dev_deploy.sh | sh -s -- --branch dev
 #
 # Usage (if downloaded first):
 #   sh dev_deploy.sh                    # download + install + reboot
@@ -30,7 +30,7 @@ set -eu
 
 # --- Configuration -----------------------------------------------------------
 
-GITHUB_REPO="jpapiez/phrozenarco"
+GITHUB_REPO="OlyForge3D/phrozen_arco"
 BRANCH="dev"
 
 # --- Parse arguments ---------------------------------------------------------
