@@ -18,7 +18,6 @@ INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
 KLIPPER_PIN="0aacbc39736c933491690bf8174a0658acf4482f"   # v0.12.0+168 (has minimum_cruise_ratio)
 MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 SAVE_CONFIG_TMP="/tmp/kaos_save_config_$$.log"
-SOFT_SHUTDOWN_LOG_TMP="/tmp/kaos_soft_shutdown_$$.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
 
 # --- WhatIf mode -------------------------------------------------------------
@@ -54,236 +53,8 @@ backup_file() {
     fi
 }
 
-soft_log() {
-    log "$*"
-    echo "$*" >> "$SOFT_SHUTDOWN_LOG_TMP" 2> /dev/null || true
-}
-
-remove_soft_shutdown() {
-    soft_log "soft_shutdown_remove_begin"
-    soft_log "soft_shutdown_target=/root/soft_shutdown.sh"
-
-    # Stop any currently running soft shutdown script.
-    if pkill -f '/root/soft_shutdown.sh' 2> /dev/null; then
-        soft_log "soft_shutdown_process_status=killed"
-    else
-        soft_log "soft_shutdown_process_status=not_running_or_not_found"
-    fi
-
-    # Disable startup references from rc.local if present, but leave the line visible for recovery.
-    if [ -f /etc/rc.local ]; then
-        if grep -q '/root/soft_shutdown.sh' /etc/rc.local 2> /dev/null; then
-            sed -i '\|/root/soft_shutdown.sh| { /^[[:space:]]*#/! s|^|# KAOS disabled: |; }' /etc/rc.local 2> /dev/null || true
-            soft_log "soft_shutdown_rc_local_status=reference_commented"
-        else
-            soft_log "soft_shutdown_rc_local_status=no_reference"
-        fi
-    else
-        soft_log "soft_shutdown_rc_local_status=not_present"
-    fi
-
-    # Disable and mask any systemd unit that directly references soft_shutdown.sh.
-    soft_shutdown_systemd_units=0
-    if command -v systemctl > /dev/null 2>&1; then
-        grep -rl '/root/soft_shutdown.sh' /etc/systemd/system /lib/systemd/system 2> /dev/null | while IFS= read -r unitfile; do
-            unit=$(basename "$unitfile")
-            soft_shutdown_systemd_units=1
-            soft_log "soft_shutdown_systemd_unit_found=$unit"
-            systemctl stop "$unit" 2> /dev/null || true
-            systemctl disable "$unit" 2> /dev/null || true
-            systemctl mask "$unit" 2> /dev/null || true
-            soft_log "soft_shutdown_systemd_unit_status=$unit stopped_disabled_masked"
-        done
-        #systemctl daemon-reload 2>/dev/null || true
-        soft_log "soft_shutdown_systemd_status=checked"
-    else
-        soft_log "soft_shutdown_systemd_status=systemctl_not_found"
-    fi
-
-    # Remove the script entirely — the Arco has no physical power button; this
-    # busy-loop just wastes CPU polling a GPIO that will never fire.
-    if [ -f /root/soft_shutdown.sh ]; then
-        rm -f /root/soft_shutdown.sh
-        soft_log "soft_shutdown_script_status=removed"
-    else
-        soft_log "soft_shutdown_script_status=not_present"
-    fi
-
-    # Clean up the serial-screen overlay copy if it exists.
-    if [ -f "$TARGET_DIR/serial-screen/soft_shutdown.sh" ]; then
-        rm -f "$TARGET_DIR/serial-screen/soft_shutdown.sh"
-        soft_log "soft_shutdown_serial_screen_status=removed"
-    fi
-
-    soft_log "soft_shutdown_remove_end"
-}
-
-PHONE_HOME_LOG_TMP="/tmp/kaos_phone_home_$$.log"
 UPDATE_MGR_LOG_TMP="/tmp/kaos_update_mgr_$$.log"
 MOONRAKER_CONF="$CONFIG_DIR/moonraker.conf"
-
-ph_log() {
-    log "$*"
-    echo "$*" >> "$PHONE_HOME_LOG_TMP" 2> /dev/null || true
-}
-
-remove_phone_home() {
-    ph_log "phone_home_remove_begin"
-
-    # Kill running phone-home processes.
-    for proc in phrozen_slave_ota phrozen_master frpc frpc_script; do
-        if pkill -f "$proc" 2> /dev/null; then
-            ph_log "phone_home_process=$proc status=killed"
-        else
-            ph_log "phone_home_process=$proc status=not_running"
-        fi
-    done
-
-    # Disable frpc systemd service if present.
-    if command -v systemctl > /dev/null 2>&1; then
-        for unit in frpc.service; do
-            if systemctl list-unit-files "$unit" > /dev/null 2>&1; then
-                systemctl stop "$unit" 2> /dev/null || true
-                systemctl disable "$unit" 2> /dev/null || true
-                systemctl mask "$unit" 2> /dev/null || true
-                ph_log "phone_home_systemd_unit=$unit status=stopped_disabled_masked"
-            else
-                ph_log "phone_home_systemd_unit=$unit status=not_found"
-            fi
-        done
-    fi
-
-    # Remove the frp-oms directory (contains all phone-home binaries and configs).
-    if [ -d "$TARGET_DIR/frp-oms" ]; then
-        rm -rf "$TARGET_DIR/frp-oms"
-        if [ ! -d "$TARGET_DIR/frp-oms" ]; then
-            ph_log "phone_home_frp_oms_dir=removed"
-        else
-            ph_log "phone_home_frp_oms_dir=removal_failed"
-        fi
-    else
-        ph_log "phone_home_frp_oms_dir=not_present"
-    fi
-
-    # Also remove from /etc/frp if installed there.
-    if [ -d /etc/frp ]; then
-        rm -rf /etc/frp
-        ph_log "phone_home_etc_frp=removed"
-    fi
-
-    # Remove system-level frpc binary (referenced by frpc.service systemd unit).
-    if [ -f /usr/bin/frpc ]; then
-        rm -f /usr/bin/frpc
-        ph_log "phone_home_usr_bin_frpc=removed"
-    fi
-
-    # Remove UDS socket left by phrozen_master.
-    rm -f /tmp/UNIX.domain 2> /dev/null || true
-
-    # Remove any crontab entries referencing phone-home binaries.
-    if command -v crontab > /dev/null 2>&1; then
-        if crontab -l 2> /dev/null | grep -qE 'frpc|phrozen_master|phrozen_slave_ota'; then
-            crontab -l 2> /dev/null | grep -vE 'frpc|phrozen_master|phrozen_slave_ota' | crontab - 2> /dev/null || true
-            ph_log "phone_home_crontab=cleaned"
-        fi
-    fi
-
-    # Comment out phone-home lines in start.sh.
-    START_SH="$TARGET_DIR/start.sh"
-    if [ -f "$START_SH" ]; then
-        if grep -q 'phrozen_slave_ota' "$START_SH" 2> /dev/null; then
-            sed -i '/phrozen_slave_ota/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }' "$START_SH" 2> /dev/null || true
-            sed -i '/killall phrozen_slave_ota/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }' "$START_SH" 2> /dev/null || true
-            ph_log "phone_home_start_sh=patched"
-        else
-            ph_log "phone_home_start_sh=already_clean"
-        fi
-    else
-        ph_log "phone_home_start_sh=not_present"
-    fi
-
-    # Comment out phone-home lines in KlipperScreen-start.sh.
-    KS_START="/home/mks/KlipperScreen/scripts/KlipperScreen-start.sh"
-    if [ -f "$KS_START" ]; then
-        patched=false
-        for pattern in phrozen_slave_ota phrozen_master frpc_script; do
-            if grep -q "$pattern" "$KS_START" 2> /dev/null; then
-                sed -i "/$pattern/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }" "$KS_START" 2> /dev/null || true
-                patched=true
-            fi
-        done
-        if $patched; then
-            ph_log "phone_home_klipperscreen_start=patched"
-        else
-            ph_log "phone_home_klipperscreen_start=already_clean"
-        fi
-    else
-        ph_log "phone_home_klipperscreen_start=not_present"
-    fi
-
-    ph_log "phone_home_remove_end"
-}
-
-# --- Remove PhrozenGo (TUTK cloud relay for Phrozen mobile app) ---------------
-# PhrozenGo is a Go binary (phrozen-go-release) extracted from PhrozenGo.tar
-# that acts as a TUTK IoT cloud relay enabling remote control via Phrozen's
-# mobile app. It runs as a persistent daemon via PhrozenGoStart.sh.
-# Removal: kills the process, removes the tarball, the extracted directory,
-# and the PhrozenGoStart.sh launcher scripts.
-
-remove_phrozen_go() {
-    ph_log "phrozen_go_remove_begin"
-
-    # Kill running PhrozenGo process.
-    if pkill -f "phrozen-go-release" 2> /dev/null; then
-        ph_log "phrozen_go_process=killed"
-    else
-        ph_log "phrozen_go_process=not_running"
-    fi
-
-    # Kill the PhrozenGoStart.sh wrapper if running.
-    if pkill -f "PhrozenGoStart.sh" 2> /dev/null; then
-        ph_log "phrozen_go_start_wrapper=killed"
-    else
-        ph_log "phrozen_go_start_wrapper=not_running"
-    fi
-
-    # Remove the PhrozenGo.tar tarball from phrozen_dev.
-    if [ -f "$TARGET_DIR/PhrozenGo.tar" ]; then
-        rm -f "$TARGET_DIR/PhrozenGo.tar"
-        ph_log "phrozen_go_tarball=removed"
-    else
-        ph_log "phrozen_go_tarball=not_present"
-    fi
-
-    # Remove the extracted PhrozenGo directory.
-    if [ -d "/home/mks/PhrozenGo" ]; then
-        rm -rf "/home/mks/PhrozenGo"
-        ph_log "phrozen_go_directory=removed"
-    else
-        ph_log "phrozen_go_directory=not_present"
-    fi
-
-    # Remove PhrozenGoStart.sh — TUTK cloud relay is permanently disabled.
-    PHROZEN_GO_START="$TARGET_DIR/PhrozenGoStart.sh"
-    if [ -f "$PHROZEN_GO_START" ]; then
-        rm -f "$PHROZEN_GO_START"
-        ph_log "phrozen_go_start_script=removed"
-    else
-        ph_log "phrozen_go_start_script=not_present"
-    fi
-
-    # Also remove serial-screen copy.
-    PHROZEN_GO_START_SS="$TARGET_DIR/serial-screen/PhrozenGoStart.sh"
-    if [ -f "$PHROZEN_GO_START_SS" ]; then
-        rm -f "$PHROZEN_GO_START_SS"
-        ph_log "phrozen_go_start_script_serial_screen=removed"
-    else
-        ph_log "phrozen_go_start_script_serial_screen=not_present"
-    fi
-
-    ph_log "phrozen_go_remove_end"
-}
 
 # --- Manage Moonraker update_manager sections ---------------------------------
 # Ensures pinned_commit sections exist for Klipper and Moonraker to prevent
@@ -790,9 +561,6 @@ log "installed $cfg_count split KAOS cfg files"
 
 [ "$cfg_count" -gt 0 ] || fail "Verify failed: no split KAOS cfg files installed in $CONFIG_DIR/kaos"
 
-remove_soft_shutdown
-remove_phone_home
-remove_phrozen_go
 enable_update_managers
 enforce_klipper_pin
 
@@ -812,22 +580,6 @@ enforce_klipper_pin
     fi
     echo "existing_save_config_block_end"
     echo ""
-    echo "soft_shutdown_remove_log_begin"
-    if [ -s "$SOFT_SHUTDOWN_LOG_TMP" ]; then
-        cat "$SOFT_SHUTDOWN_LOG_TMP"
-    else
-        echo "NOT_RUN"
-    fi
-    echo "soft_shutdown_remove_log_end"
-    echo ""
-    echo "phone_home_remove_log_begin"
-    if [ -s "$PHONE_HOME_LOG_TMP" ]; then
-        cat "$PHONE_HOME_LOG_TMP"
-    else
-        echo "NOT_RUN"
-    fi
-    echo "phone_home_remove_log_end"
-    echo ""
     echo "update_manager_log_begin"
     if [ -s "$UPDATE_MGR_LOG_TMP" ]; then
         cat "$UPDATE_MGR_LOG_TMP"
@@ -842,8 +594,6 @@ enforce_klipper_pin
 } >> "$INSTALL_LOG"
 
 rm -f "$SAVE_CONFIG_TMP"
-rm -f "$SOFT_SHUTDOWN_LOG_TMP"
-rm -f "$PHONE_HOME_LOG_TMP"
 rm -f "$UPDATE_MGR_LOG_TMP"
 
 sync

@@ -166,6 +166,111 @@ KAOS_EOF
 fi
 echo ""
 
+# --- Step 4b: Remove Phrozen phone-home, soft-shutdown, and cloud relay -------
+# These are privileged operations (systemd, /etc, /root) that only need to run
+# once during migration. The install script (run by Moonraker as mks) does NOT
+# handle these.
+
+TARGET_DIR="$KLIPPER_DIR/klippy/extras/phrozen_dev"
+
+info "[4b] Removing Phrozen phone-home services"
+
+# Kill running phone-home processes.
+for proc in phrozen_slave_ota phrozen_master frpc frpc_script; do
+    if pkill -f "$proc" 2>/dev/null; then
+        info "  Killed $proc"
+    fi
+done
+
+# Disable frpc systemd service if present.
+if command -v systemctl >/dev/null 2>&1; then
+    for unit in frpc.service; do
+        if systemctl list-unit-files "$unit" >/dev/null 2>&1; then
+            systemctl stop "$unit" 2>/dev/null || true
+            systemctl disable "$unit" 2>/dev/null || true
+            systemctl mask "$unit" 2>/dev/null || true
+            info "  Stopped/disabled/masked $unit"
+        fi
+    done
+fi
+
+# Remove frp-oms directory (phone-home binaries and configs).
+[ -d "$TARGET_DIR/frp-oms" ] && rm -rf "$TARGET_DIR/frp-oms" && info "  Removed frp-oms/"
+
+# Remove /etc/frp and /usr/bin/frpc.
+[ -d /etc/frp ] && rm -rf /etc/frp && info "  Removed /etc/frp/"
+[ -f /usr/bin/frpc ] && rm -f /usr/bin/frpc && info "  Removed /usr/bin/frpc"
+
+# Remove UDS socket left by phrozen_master.
+rm -f /tmp/UNIX.domain 2>/dev/null || true
+
+# Clean crontab entries referencing phone-home.
+if command -v crontab >/dev/null 2>&1; then
+    if crontab -l 2>/dev/null | grep -qE 'frpc|phrozen_master|phrozen_slave_ota'; then
+        crontab -l 2>/dev/null | grep -vE 'frpc|phrozen_master|phrozen_slave_ota' | crontab - 2>/dev/null || true
+        info "  Cleaned crontab phone-home entries"
+    fi
+fi
+
+# Comment out phone-home lines in start.sh.
+START_SH="$TARGET_DIR/start.sh"
+if [ -f "$START_SH" ] && grep -q 'phrozen_slave_ota' "$START_SH" 2>/dev/null; then
+    sed -i '/phrozen_slave_ota/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }' "$START_SH" 2>/dev/null || true
+    sed -i '/killall phrozen_slave_ota/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }' "$START_SH" 2>/dev/null || true
+    info "  Patched start.sh"
+fi
+
+# Comment out phone-home lines in KlipperScreen-start.sh.
+KS_START="/home/mks/KlipperScreen/scripts/KlipperScreen-start.sh"
+if [ -f "$KS_START" ]; then
+    for pattern in phrozen_slave_ota phrozen_master frpc_script; do
+        if grep -q "$pattern" "$KS_START" 2>/dev/null; then
+            sed -i "/$pattern/{ /^[[:space:]]*#/! s/^/# KAOS disabled: / }" "$KS_START" 2>/dev/null || true
+        fi
+    done
+    info "  Patched KlipperScreen-start.sh"
+fi
+
+info "[4c] Removing soft_shutdown"
+
+# Kill soft_shutdown if running.
+pkill -f '/root/soft_shutdown.sh' 2>/dev/null || true
+
+# Comment out rc.local reference.
+if [ -f /etc/rc.local ] && grep -q '/root/soft_shutdown.sh' /etc/rc.local 2>/dev/null; then
+    sed -i '\|/root/soft_shutdown.sh| { /^[[:space:]]*#/! s|^|# KAOS disabled: |; }' /etc/rc.local 2>/dev/null || true
+    info "  Disabled soft_shutdown in rc.local"
+fi
+
+# Disable systemd units referencing soft_shutdown.sh.
+if command -v systemctl >/dev/null 2>&1; then
+    grep -rl '/root/soft_shutdown.sh' /etc/systemd/system /lib/systemd/system 2>/dev/null | while IFS= read -r unitfile; do
+        unit=$(basename "$unitfile")
+        systemctl stop "$unit" 2>/dev/null || true
+        systemctl disable "$unit" 2>/dev/null || true
+        systemctl mask "$unit" 2>/dev/null || true
+        info "  Stopped/disabled/masked $unit"
+    done
+fi
+
+# Remove the script.
+[ -f /root/soft_shutdown.sh ] && rm -f /root/soft_shutdown.sh && info "  Removed /root/soft_shutdown.sh"
+[ -f "$TARGET_DIR/serial-screen/soft_shutdown.sh" ] && rm -f "$TARGET_DIR/serial-screen/soft_shutdown.sh"
+
+info "[4d] Removing PhrozenGo (TUTK cloud relay)"
+
+# Kill PhrozenGo processes.
+pkill -f "phrozen-go-release" 2>/dev/null || true
+pkill -f "PhrozenGoStart.sh" 2>/dev/null || true
+
+# Remove PhrozenGo artifacts.
+[ -f "$TARGET_DIR/PhrozenGo.tar" ] && rm -f "$TARGET_DIR/PhrozenGo.tar" && info "  Removed PhrozenGo.tar"
+[ -d "/home/mks/PhrozenGo" ] && rm -rf "/home/mks/PhrozenGo" && info "  Removed ~/PhrozenGo/"
+[ -f "$TARGET_DIR/PhrozenGoStart.sh" ] && rm -f "$TARGET_DIR/PhrozenGoStart.sh"
+[ -f "$TARGET_DIR/serial-screen/PhrozenGoStart.sh" ] && rm -f "$TARGET_DIR/serial-screen/PhrozenGoStart.sh"
+
+echo ""
+
 # --- Step 5: Run KAOS installer -----------------------------------------------
 
 info "[5/5] Running KAOS installer"
