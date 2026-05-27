@@ -1,0 +1,10 @@
+*.egg-info
+*.pyc
+.tox
+ChangeLog
+MANIFEST
+usb/_version.py
+
+build/
+dist/
+venv/
