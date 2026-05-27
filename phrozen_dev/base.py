@@ -741,11 +741,26 @@ class Base(object):
         Lo_ToolheadAdcPins = self.G_PhrozenPrinter.lookup_object("pins")
         # ：fila_sensor_pin: _THR:PA2
         self.G_ToolheadAdc = Lo_ToolheadAdcPins.setup_pin("adc", self.G_ToolheadFilaSensorPin)
-        self.G_ToolheadAdc.setup_minmax(TOOLHEAD_ADC_SAMPLE_TIME, TOOLHEAD_ADC_SAMPLE_COUNT)
-        # callbackfunction
-        self.G_ToolheadAdc.setup_adc_callback(
-            TOOLHEAD_ADC_REPORT_TIME, self.Base_ToolheadAdcCallback
-        )
+        if hasattr(self.G_ToolheadAdc, 'setup_adc_sample'):
+            # Klipper v13+ (setup_minmax removed, new unified API)
+            self.G_ToolheadAdc.setup_adc_sample(
+                TOOLHEAD_ADC_REPORT_TIME,
+                sample_time=TOOLHEAD_ADC_SAMPLE_TIME,
+                sample_count=TOOLHEAD_ADC_SAMPLE_COUNT,
+            )
+            self.G_ToolheadAdc.setup_adc_callback(
+                lambda samples: self.Base_ToolheadAdcCallback(
+                    samples[-1][0], samples[-1][1]
+                ) if samples else None
+            )
+        else:
+            # Klipper <= v0.12 (pinned builds)
+            self.G_ToolheadAdc.setup_minmax(
+                TOOLHEAD_ADC_SAMPLE_TIME, TOOLHEAD_ADC_SAMPLE_COUNT
+            )
+            self.G_ToolheadAdc.setup_adc_callback(
+                TOOLHEAD_ADC_REPORT_TIME, self.Base_ToolheadAdcCallback
+            )
         Lo_ToolheadQueryAdc = self.G_PhrozenPrinter.lookup_object("query_adc")
         Lo_ToolheadQueryAdc.register_adc("prz_adc", self.G_ToolheadAdc)
 

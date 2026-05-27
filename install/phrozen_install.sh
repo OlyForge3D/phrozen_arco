@@ -339,6 +339,35 @@ UPSERT_EOF
     fi
 }
 
+enforce_klipper_pin() {
+    # Ensure ~/klipper is checked out at the pinned commit.
+    # Moonraker's pinned_commit prevents forward drift, but if the pin was
+    # bumped in a new KAOS release the installer must move Klipper to match.
+    if [ ! -d "$KLIPPER_DIR/.git" ]; then
+        log "enforce_klipper_pin: $KLIPPER_DIR is not a git repo — skipping"
+        return
+    fi
+
+    current_sha=$(git -C "$KLIPPER_DIR" rev-parse HEAD 2>/dev/null || echo "")
+    if [ "$current_sha" = "$KLIPPER_PIN" ]; then
+        log "enforce_klipper_pin: already at $KLIPPER_PIN — OK"
+        return
+    fi
+
+    log "enforce_klipper_pin: current=$current_sha expected=$KLIPPER_PIN — updating"
+    if ! git -C "$KLIPPER_DIR" fetch origin 2>/dev/null; then
+        log "enforce_klipper_pin: fetch failed (offline?) — skipping"
+        return
+    fi
+
+    if git -C "$KLIPPER_DIR" cat-file -t "$KLIPPER_PIN" >/dev/null 2>&1; then
+        git -C "$KLIPPER_DIR" reset --hard "$KLIPPER_PIN"
+        log "enforce_klipper_pin: checked out $KLIPPER_PIN — OK"
+    else
+        log "enforce_klipper_pin: pinned commit not in history (shallow clone?) — skipping"
+    fi
+}
+
 enable_update_managers() {
     um_log "update_manager_begin"
 
@@ -765,6 +794,7 @@ remove_soft_shutdown
 remove_phone_home
 remove_phrozen_go
 enable_update_managers
+enforce_klipper_pin
 
 {
     echo "KAOS install completed at $(date)"
