@@ -34,7 +34,7 @@ KAOS_BRANCH="dev"
 
 # Pinned commits — initial versions to check out during migration.
 # Ongoing pin enforcement is handled by phrozen_install.sh via moonraker.conf.
-KLIPPER_PIN="0aacbc39736c933491690bf8174a0658acf4482f"   # v0.12.0+168 (has minimum_cruise_ratio)
+KLIPPER_PIN="e6ef48cd"   # v0.11.0-122 (matches MCU firmware; max_accel_to_decel era)
 MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 
 # Known fork URLs to migrate away from (matched as substrings)
