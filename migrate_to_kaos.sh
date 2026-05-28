@@ -158,7 +158,6 @@ path: ~/kaos
 origin: https://github.com/OlyForge3D/phrozen_arco.git
 primary_branch: dev
 managed_services: klipper
-install_script: install/phrozen_install.sh
 KAOS_EOF
     fi
 
