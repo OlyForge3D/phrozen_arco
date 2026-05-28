@@ -65,7 +65,6 @@ config/
     ├── kaos_filament.cfg     # filament load/unload macros
     ├── kaos_lights.cfg       # LED control
     ├── kaos_logging.cfg      # _KAOS_LOG and logging state macros
-    ├── kaos_mesh.cfg         # adaptive bed mesh
     ├── kaos_safety.cfg       # trusted-home framework, motion guards
     ├── kaos_dynamic_speed.cfg
     ├── kaos_z_tilt.cfg

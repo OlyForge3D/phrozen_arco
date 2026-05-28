@@ -19,7 +19,7 @@ Use at your own risk. Keep backups of your working configuration before installi
 ### Installation
 1. Download the latest version here: [Releases](https://gitlab.com/sanders.chris/phrozenarco/-/releases)
 2. Follow the [Installation Instructions](#installation-overview)
-3. Update your slicer G-Code as per: [KAOS G-code](https://gitlab.com/sanders.chris/phrozenarco/-/blob/88ec4c1dad946d2dc2edc06f8f370d3c5bf3f168/KAOS_Slicer_G-Code.md) AND update your Printer settings as per [this image](https://gitlab.com/sanders.chris/phrozenarco/-/blob/3c667b6c2e2b4637c36a89a9f12216ea17e43411/reference/adaptive_mesh.png).
+3. Update your slicer G-Code as per: [KAOS G-code](KAOS_Slicer_G-Code.md)
 
  **OR**
 
@@ -42,7 +42,7 @@ It provides:
 - centralized user configuration
 - split feature-based config files
 - AMS / Chroma-related macro improvements
-- adaptive mesh and leveling helpers
+- adaptive mesh (via Klipper's built-in `ADAPTIVE=1`) and leveling helpers
 - lighting, fan, beeper, and stepper helpers
 - optional Python-assisted logging and translation support
 - USB installer support for easier deployment
@@ -152,7 +152,6 @@ KAOS is organized into three main areas:
     ├── kaos_fans.cfg
     ├── kaos_lights.cfg
     ├── kaos_logging.cfg
-    ├── kaos_mesh.cfg
     ├── kaos_safety.cfg
     ├── kaos_screws_tilt.cfg
     ├── kaos_steppers.cfg
@@ -196,7 +195,6 @@ Examples:
 - fan logic → `kaos_fans.cfg`
 - Z tilt logic → `kaos_z_tilt.cfg`
 - safety wrappers → `kaos_safety.cfg`
-- adaptive mesh → `kaos_mesh.cfg`
 - logging wrappers → `kaos_logging.cfg`
 
 ### 3. `_USER_CONFIG` is the central policy/config macro
@@ -486,19 +484,9 @@ These routines should be treated carefully because some vendor messages and P-co
 
 ### Bed Mesh
 
-KAOS includes an adaptive bed mesh wrapper:
+KAOS uses Klipper's built-in adaptive bed mesh (`BED_MESH_CALIBRATE ADAPTIVE=1`). The mesh area is automatically determined from object polygons provided by the slicer via `[exclude_object]`. Probe count scales proportionally to the adaptive area.
 
-```text
-BED_MESH_CALIBRATE_CUSTOM
-```
-
-It can adjust mesh density based on print size and requires trusted physical homing before probing.
-
-Relevant file:
-
-```text
-kaos_mesh.cfg
-```
+Configuration is in the `[bed_mesh]` section of `printer.cfg` (`adaptive_margin: 5`).
 
 ---
 

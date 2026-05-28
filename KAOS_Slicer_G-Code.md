@@ -31,11 +31,14 @@ SET_PRINT_STATS_INFO CURRENT_LAYER={layer_num + 1}
 
 ```
 ; ===== Machine Start G-Code =====
-; Use START_PRINT macro for full staged heat + home + tilt + adaptive mesh flow.
-START_PRINT BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] TOTAL_LAYER_COUNT={total_layer_count} MESH_MIN_X={first_layer_print_min[0]} MESH_MIN_Y={first_layer_print_min[1]} MESH_MAX_X={first_layer_print_max[0]} MESH_MAX_Y={first_layer_print_max[1]}
-
+; START_PRINT handles: staged heating, homing, Z tilt, adaptive bed mesh, AMS init.
+; Klipper's built-in adaptive mesh uses [exclude_object] data from the gcode —
+; no slicer mesh coordinates needed.
+START_PRINT BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP=[nozzle_temperature_initial_layer] TOTAL_LAYER_COUNT=[total_layer_count]
 ; ===== End  Start =====
 ```
+
+> **Slicer requirement:** In OrcaSlicer → Process → Others, ensure **"Label objects"** is enabled (it is by default). This provides the object polygon data that Klipper uses for adaptive mesh bounds.
 
 ---
 
