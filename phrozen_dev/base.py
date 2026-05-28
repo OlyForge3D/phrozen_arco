@@ -742,13 +742,32 @@ class Base(object):
         # ：fila_sensor_pin: _THR:PA2
         self.G_ToolheadAdc = Lo_ToolheadAdcPins.setup_pin("adc", self.G_ToolheadFilaSensorPin)
         if hasattr(self.G_ToolheadAdc, 'setup_adc_sample'):
-            # Klipper v0.13+ (setup_minmax renamed to setup_adc_sample)
-            self.G_ToolheadAdc.setup_adc_sample(
-                TOOLHEAD_ADC_SAMPLE_TIME, TOOLHEAD_ADC_SAMPLE_COUNT
-            )
-            self.G_ToolheadAdc.setup_adc_callback(
-                TOOLHEAD_ADC_REPORT_TIME, self.Base_ToolheadAdcCallback
-            )
+            import inspect
+            try:
+                adc_params = inspect.signature(
+                    self.G_ToolheadAdc.setup_adc_sample
+                ).parameters
+                use_new_api = 'report_time' in adc_params
+            except (ValueError, TypeError):
+                use_new_api = False
+            if use_new_api:
+                # Klipper post-v0.13.0 (report_time merged into setup_adc_sample)
+                self.G_ToolheadAdc.setup_adc_sample(
+                    TOOLHEAD_ADC_REPORT_TIME,
+                    sample_time=TOOLHEAD_ADC_SAMPLE_TIME,
+                    sample_count=TOOLHEAD_ADC_SAMPLE_COUNT
+                )
+                self.G_ToolheadAdc.setup_adc_callback(
+                    self.Base_ToolheadAdcCallback
+                )
+            else:
+                # Klipper v0.13.0 (setup_minmax renamed to setup_adc_sample)
+                self.G_ToolheadAdc.setup_adc_sample(
+                    TOOLHEAD_ADC_SAMPLE_TIME, TOOLHEAD_ADC_SAMPLE_COUNT
+                )
+                self.G_ToolheadAdc.setup_adc_callback(
+                    TOOLHEAD_ADC_REPORT_TIME, self.Base_ToolheadAdcCallback
+                )
         else:
             # Klipper <= v0.12 (pinned builds)
             self.G_ToolheadAdc.setup_minmax(
