@@ -742,16 +742,12 @@ class Base(object):
         # ：fila_sensor_pin: _THR:PA2
         self.G_ToolheadAdc = Lo_ToolheadAdcPins.setup_pin("adc", self.G_ToolheadFilaSensorPin)
         if hasattr(self.G_ToolheadAdc, 'setup_adc_sample'):
-            # Klipper v13+ (setup_minmax removed, new unified API)
+            # Klipper v0.13+ (setup_minmax renamed to setup_adc_sample)
             self.G_ToolheadAdc.setup_adc_sample(
-                TOOLHEAD_ADC_REPORT_TIME,
-                sample_time=TOOLHEAD_ADC_SAMPLE_TIME,
-                sample_count=TOOLHEAD_ADC_SAMPLE_COUNT,
+                TOOLHEAD_ADC_SAMPLE_TIME, TOOLHEAD_ADC_SAMPLE_COUNT
             )
             self.G_ToolheadAdc.setup_adc_callback(
-                lambda samples: self.Base_ToolheadAdcCallback(
-                    samples[-1][0], samples[-1][1]
-                ) if samples else None
+                TOOLHEAD_ADC_REPORT_TIME, self.Base_ToolheadAdcCallback
             )
         else:
             # Klipper <= v0.12 (pinned builds)

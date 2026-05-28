@@ -25,7 +25,7 @@ INSTALL_LOG="$CONFIG_DIR/kaos_install.log"
 
 # Pinned commits — tested versions for the Phrozen Arco.
 # Moonraker's update_manager will refuse to update beyond these.
-KLIPPER_PIN="e6ef48cd"   # v0.11.0-122 (matches MCU firmware; max_accel_to_decel era)
+KLIPPER_PIN="0d67d9c4"   # v0.12.0 (protocol-compatible with v0.11.0-122 MCU firmware)
 MOONRAKER_PIN="71517b255dc43c7e99fbc269d34deba9b30dd9f6"  # v0.8.0-306
 SAVE_CONFIG_TMP="/tmp/kaos_save_config_$$.log"
 timestamp=$(date +%Y%m%d_%H%M%S)
