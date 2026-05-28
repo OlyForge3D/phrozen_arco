@@ -56,6 +56,7 @@ def install(printer):
     vsd.get_file_list = _enhanced_get_file_list
 
     # Register SDCARD_SELECT_FILE command (select without starting print)
+    # Skip if already registered (e.g., Phrozen Klipper fork includes it natively)
     gcode = printer.lookup_object("gcode")
 
     def cmd_SDCARD_SELECT_FILE(gcmd):
@@ -67,11 +68,15 @@ def install(printer):
             filename = filename[1:]
         vsd._load_file(gcmd, filename, check_subdirs=True)
 
-    gcode.register_command(
-        "SDCARD_SELECT_FILE",
-        cmd_SDCARD_SELECT_FILE,
-        desc="Select a SD file. May include files in subdirectories.",
-    )
+    try:
+        gcode.register_command(
+            "SDCARD_SELECT_FILE",
+            cmd_SDCARD_SELECT_FILE,
+            desc="Select a SD file. May include files in subdirectories.",
+        )
+    except printer.config_error:
+        logging.info("phrozen_sdcard_ext: SDCARD_SELECT_FILE already "
+                     "registered (Phrozen fork?) — skipping")
 
     logging.info("phrozen_sdcard_ext: patched virtual_sdcard with "
                  "subdirectory browsing and SDCARD_SELECT_FILE")
