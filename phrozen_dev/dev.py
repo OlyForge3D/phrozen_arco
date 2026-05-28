@@ -8,6 +8,7 @@ import re
 from .cwebsocketapis import *
 
 from .kaos_logging import install_kaos_logging
+from . import phrozen_sdcard_ext
 
 
 class PhrozenDev(Apis):
@@ -34,6 +35,9 @@ class PhrozenDev(Apis):
 
         # cwebsocketapis.py;web WebSocket API
         self.WebsocketAPIs_RegisterAPIs()
+
+        # Patch virtual_sdcard with touchscreen subdirectory browsing
+        phrozen_sdcard_ext.install(self.G_PhrozenPrinter)
 
         # dev.py;test command PRZ_TEST
         if self.G_EnableDebugCommands:
