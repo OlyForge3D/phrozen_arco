@@ -10,6 +10,11 @@ from .cwebsocketapis import *
 from .kaos_logging import install_kaos_logging
 from . import phrozen_sdcard_ext
 
+try:
+    from .kaos_motion_guard import install_kaos_motion_guard
+except Exception:
+    install_kaos_motion_guard = None
+
 
 class PhrozenDev(Apis):
     # constructor initialization
@@ -35,6 +40,13 @@ class PhrozenDev(Apis):
 
         # cwebsocketapis.py;web WebSocket API
         self.WebsocketAPIs_RegisterAPIs()
+
+        # KAOS pre-home motion guard: command-level G0/G1 protection without
+        # per-move Jinja wrappers. Installed after vendor/custom command
+        # registration so the native G0/G1/G28 handlers are present before
+        # KAOS wraps them.
+        if install_kaos_motion_guard is not None:
+            install_kaos_motion_guard(self)
 
         # Patch virtual_sdcard with touchscreen subdirectory browsing
         phrozen_sdcard_ext.install(self.G_PhrozenPrinter)

@@ -13,5 +13,8 @@
     "baseline": {
         "entry_point": "G30",
         "params": {}
-    }
+    },
+    "expect_diff": true,
+    "diff_explanation": "Adopted KAOS Motion Guard (kaos_motion_guard.py): _CLEAR_TRUSTED_HOME/_SET_TRUSTED_XYZ/_CLEAR_RECOVERY_AUTH now emit KAOS_MOTION_GUARD_* commands to sync the Python pre-home G0/G1 guard with trusted-home state. No motion/heater/fan behavior change.",
+    "intent_trace_hash": "sha256:1fab9614e05abf6785ab563c6a15caa525e8e96384179966203a33a39418fa46"
 }
