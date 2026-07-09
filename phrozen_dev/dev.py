@@ -48,6 +48,13 @@ class PhrozenDev(Apis):
         if install_kaos_motion_guard is not None:
             install_kaos_motion_guard(self)
 
+        # KAOS: defer PRZ_RESTORE wrap to klippy:ready because PRZ_RESTORE is
+        # registered by cmds.py via Klipper's command registration pipeline,
+        # which may not populate the live dispatch table until after __init__
+        # completes. klippy:ready fires after all extras have finished
+        # initializing and the handler table is fully populated.
+        self.G_PhrozenPrinter.register_event_handler("klippy:ready", self._kaos_wrap_prz_restore)
+
         # Patch virtual_sdcard with touchscreen subdirectory browsing
         phrozen_sdcard_ext.install(self.G_PhrozenPrinter)
 
@@ -55,6 +62,52 @@ class PhrozenDev(Apis):
         if self.G_EnableDebugCommands:
             self.G_PhrozenGCode.register_command(
                 "PRZ_TEST", self.Device_CmdPhrozenTest, desc="Phrozen AMS unit test command"
+            )
+
+    def _kaos_wrap_prz_restore(self):
+        # Runs on klippy:ready, after all extras have initialized and the gcode
+        # handler table is fully populated. Wraps PRZ_RESTORE so that the stock
+        # on-screen power-loss recovery flow authorizes KAOS guarded motion
+        # before issuing any movement-producing scripts.
+        try:
+            handlers = getattr(self.G_PhrozenGCode, "ready_gcode_handlers",
+                               getattr(self.G_PhrozenGCode, "gcode_handlers", None))
+            if handlers is None:
+                self.G_PhrozenFluiddRespondInfo(
+                    "KAOS WARN: no gcode handler table found; PRZ_RESTORE hook not installed"
+                )
+                return
+            _kaos_prz_orig = handlers.get("PRZ_RESTORE")
+            if _kaos_prz_orig is None:
+                self.G_PhrozenFluiddRespondInfo(
+                    "KAOS WARN: PRZ_RESTORE handler not found; touchscreen recovery hook not installed"
+                )
+                return
+            _kaos_prz_self = self
+
+            def _kaos_prz_restore_wrapper(gcmd):
+                try:
+                    _kaos_prz_self.G_PhrozenGCode.run_script_from_command(
+                        "_KAOS_TOUCHSCREEN_POWER_RECOVERY_START"
+                    )
+                except Exception as e:
+                    _kaos_prz_self.G_PhrozenFluiddRespondInfo(
+                        "KAOS ERROR: touchscreen power-loss recovery could not authorize motion: %s" % e
+                    )
+                return _kaos_prz_orig(gcmd)
+
+            handlers["PRZ_RESTORE"] = _kaos_prz_restore_wrapper
+            # Write to both tables if they are distinct objects.
+            for attr in ("gcode_handlers", "ready_gcode_handlers"):
+                other = getattr(self.G_PhrozenGCode, attr, None)
+                if other is not None and other is not handlers:
+                    other["PRZ_RESTORE"] = _kaos_prz_restore_wrapper
+            self.G_PhrozenFluiddRespondInfo(
+                "KAOS: PRZ_RESTORE wrapped; touchscreen power-loss recovery hook installed"
+            )
+        except Exception as e:
+            self.G_PhrozenFluiddRespondInfo(
+                "KAOS ERROR: failed to wrap PRZ_RESTORE: %s" % e
             )
 
     # AMS reset parameters
