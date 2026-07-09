@@ -252,6 +252,7 @@ BUILTIN_GCODE = {
     # Klipper builtins I missed in the first pass
     "UPDATE_DELAYED_GCODE",
     "SET_TEMPERATURE_FAN_TARGET",
+    "SAVE_VARIABLE",
 }
 
 
