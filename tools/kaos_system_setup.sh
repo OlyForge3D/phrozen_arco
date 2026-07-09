@@ -12,8 +12,9 @@
 # Design:
 #   * Single entry point invoked by install/phrozen_install.sh (gated).
 #   * Vendored, tested helper scripts live in ./kaos_system_setup/helpers/.
-#   * Safe, idempotent FIXES run by default. Riskier CHANGES and all
-#     maintenance actions are opt-in via KAOS_SETUP_* environment variables.
+#   * Safe, idempotent FIXES and stability improvements run by default. Only
+#     preference/destructive/needs-input helpers and all maintenance actions
+#     are opt-in via KAOS_SETUP_* environment variables.
 #   * Every helper is non-fatal: a failure logs a warning and continues.
 #
 # Usage:
@@ -50,11 +51,13 @@ DRY_RUN=0
 : "${KAOS_SETUP_FIX_STOCK_NETWORK:=1}"    # disable known-failing stock network units
 : "${KAOS_SETUP_FIX_USB_MOUNTPOINT:=1}"   # repair hidden USB gcodes mountpoint ownership
 
-# Riskier CHANGES: opt-in (OFF by default).
-: "${KAOS_SETUP_OPTIMIZE_LOGGING:=0}"     # shrink journald/logging for small eMMC
-: "${KAOS_SETUP_TRIM_SERVICES:=0}"        # disable non-essential background services
-: "${KAOS_SETUP_REMOVE_VNSTAT:=0}"        # remove vnstat service/package
-: "${KAOS_SETUP_CONFIGURE_SWAP_ZRAM:=0}"  # configure swap / zram
+# Stability improvements: ON by default (reduce OOM / disk-full / eMMC wear).
+: "${KAOS_SETUP_CONFIGURE_SWAP_ZRAM:=1}"  # configure swap / zram (prevents OOM on low-RAM boards)
+: "${KAOS_SETUP_OPTIMIZE_LOGGING:=1}"     # shrink journald/logging (prevents disk-full / eMMC wear)
+: "${KAOS_SETUP_TRIM_SERVICES:=1}"        # disable/mask non-essential background services
+
+# Preference / destructive / needs-input CHANGES: opt-in (OFF by default).
+: "${KAOS_SETUP_REMOVE_VNSTAT:=0}"        # remove vnstat service/package (destructive)
 : "${KAOS_SETUP_PIN_KIAUH:=0}"            # pin KIAUH to v5.1.10 (fits pin strategy)
 : "${KAOS_SETUP_SET_TIMEZONE:=0}"         # set timezone (needs KAOS_SETUP_TIMEZONE)
 : "${KAOS_SETUP_TIMEZONE:=}"              # numeric UTC offset (-11..11) OR IANA zone name
@@ -100,10 +103,12 @@ Gates (environment variables; 1 = enable, 0 = skip):
   Safe fixes (default ON):
     KAOS_SETUP_FIX_APT_SOURCES, KAOS_SETUP_FIX_STOCK_NETWORK,
     KAOS_SETUP_FIX_USB_MOUNTPOINT
+  Stability improvements (default ON):
+    KAOS_SETUP_CONFIGURE_SWAP_ZRAM, KAOS_SETUP_OPTIMIZE_LOGGING,
+    KAOS_SETUP_TRIM_SERVICES
   Changes (default OFF):
-    KAOS_SETUP_OPTIMIZE_LOGGING, KAOS_SETUP_TRIM_SERVICES,
-    KAOS_SETUP_REMOVE_VNSTAT, KAOS_SETUP_CONFIGURE_SWAP_ZRAM,
-    KAOS_SETUP_PIN_KIAUH, KAOS_SETUP_SET_TIMEZONE (+ KAOS_SETUP_TIMEZONE)
+    KAOS_SETUP_REMOVE_VNSTAT, KAOS_SETUP_PIN_KIAUH,
+    KAOS_SETUP_SET_TIMEZONE (+ KAOS_SETUP_TIMEZONE)
   Maintenance (default OFF):
     KAOS_SETUP_CHECK_HEALTH, KAOS_SETUP_CLEAN_LOGS,
     KAOS_SETUP_TRUNCATE_LOGS (+ _MIN_MB, _INCLUDE_SYSTEM), KAOS_SETUP_RECLAIM_DISK

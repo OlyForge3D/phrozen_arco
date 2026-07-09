@@ -627,8 +627,10 @@ rm -f "$UPDATE_MGR_LOG_TMP"
 # --- Optional: curated one-time system setup (pin-safe) ----------------------
 # Off by default so existing installs are unchanged. Enable with
 # KAOS_RUN_SYSTEM_SETUP=1 to run the safe idempotent fixes (apt sources, stock
-# network services, USB mountpoint). Riskier helpers stay opt-in via KAOS_SETUP_*
-# env vars. This never runs the pin-breaking version updaters. Non-fatal.
+# network services, USB mountpoint) plus the stability improvements (swap/zram,
+# logging optimize, service trim). Preference/destructive helpers stay opt-in
+# via KAOS_SETUP_* env vars. This never runs the pin-breaking version updaters.
+# Non-fatal.
 : "${KAOS_RUN_SYSTEM_SETUP:=0}"
 KAOS_SYSTEM_SETUP="$REPO_ROOT/tools/kaos_system_setup.sh"
 if [ "$KAOS_RUN_SYSTEM_SETUP" = "1" ]; then
